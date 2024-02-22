@@ -1,7 +1,7 @@
-//= = = = = = = = = = = = = = = = = = = = = = = = =
-//Copyright (c) Coalition of Good-Hearted Engineers
-//Free To Use Comfort and Peace
-//= = = = = = = = = = = = = = = = = = = = = = = = =
+//= = = = = = = = = = = = = = = = = = = = = = = = = =
+// Copyright (c) Coalition of Good-Hearted Engineers
+// Free To Use Comfort and Peace
+//= = = = = = = = = = = = = = = = = = = = = = = = = =
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
