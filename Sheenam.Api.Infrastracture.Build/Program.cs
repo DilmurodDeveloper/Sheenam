@@ -8,6 +8,7 @@ using ADotNet.Models.Pipelines.GithubPipelines.DotNets;
 using ADotNet.Models.Pipelines.GithubPipelines.DotNets.Tasks;
 using ADotNet.Models.Pipelines.GithubPipelines.DotNets.Tasks.SetupDotNetTaskV1s;
 
+var aDotNetClient = new ADotNetClient();
 
 var githubPipeline = new GithubPipeline
 {
@@ -71,8 +72,12 @@ var githubPipeline = new GithubPipeline
     }
 };
 
-var client  = new ADotNetClient();
+string buildScriptPath = "../../../../.github/workflows/dotnet.yml";
+string directoryPath = Path.GetDirectoryName(buildScriptPath);
 
-client.SerializeAndWriteToFile(
-    adoPipeline: githubPipeline,
-    path: "../../../../.github/workflows/dotnet.yml");
+if (!Directory.Exists(directoryPath))
+{
+    Directory.CreateDirectory(directoryPath);
+}
+
+aDotNetClient.SerializeAndWriteToFile(githubPipeline, path: buildScriptPath);
