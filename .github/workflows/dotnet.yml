@@ -16,7 +16,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 8.0.10
-        include-prerelease: true
     - name: Restoring Nuget Packages
       run: dotnet restore
     - name: Building Project
