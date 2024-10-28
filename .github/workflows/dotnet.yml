@@ -15,7 +15,7 @@ jobs:
     - name: Seting Up .Net
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100-rc.1.21463.6
+        dotnet-version: 8.0.10
         include-prerelease: true
     - name: Restoring Nuget Packages
       run: dotnet restore
