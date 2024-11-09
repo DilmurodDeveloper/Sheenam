@@ -3,13 +3,14 @@
 //Free To Use To Find Comfort and Peace   
 //=================================================
 
-using Xunit;
+using Xeptions;
 
-namespace Sheenam.Api.Tests.Unit
+namespace Sheenam.Api.Models.Foundations.Guests.Exceptions
 {
-    public class DeleteMe
+    public class NullGuestException : Xeption
     {
-        [Fact]
-        public void ShouldBeTrue() => Assert.True(true);
+        public NullGuestException() 
+            : base(message: "Guest is null")
+        { }
     }
 }
