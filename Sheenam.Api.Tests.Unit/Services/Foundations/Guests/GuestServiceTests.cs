@@ -10,20 +10,26 @@ using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
 using Sheenam.Api.Services.Foundations.Guests;
 using Tynamix.ObjectFiller;
+using Castle.Core.Logging;
+using Sheenam.Api.Brokers.Loggings;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 {
     public partial class GuestServiceTests
     {
         private readonly Mock<IStorageBroker> storageBrokerMock;
+        private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IGuestService guestService;
 
         public GuestServiceTests()
         {
             this.storageBrokerMock = new Mock<IStorageBroker>();
+            this.loggingBrokerMock = new Mock<ILoggingBroker>();
 
             this.guestService = 
-                new GuestService(storageBroker: this.storageBrokerMock.Object);
+                new GuestService(
+                    storageBroker: this.storageBrokerMock.Object,
+                    loggingBroker: this.loggingBrokerMock.Object);
         }
 
         private static Guest CreateRandomGuest() =>

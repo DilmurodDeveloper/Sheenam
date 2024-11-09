@@ -38,6 +38,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
                     Times.Once());
 
             this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
         }
     }
 }
