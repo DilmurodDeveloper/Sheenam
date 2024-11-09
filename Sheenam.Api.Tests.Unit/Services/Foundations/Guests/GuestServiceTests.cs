@@ -9,10 +9,11 @@ using FluentAssertions;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
 using Sheenam.Api.Services.Foundations.Guests;
+using Tynamix.ObjectFiller;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 {
-    public class GuestServiceTests
+    public partial class GuestServiceTests
     {
         private readonly Mock<IStorageBroker> storageBrokerMock;
         private readonly IGuestService guestService;
@@ -25,29 +26,20 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
                 new GuestService(storageBroker: this.storageBrokerMock.Object);
         }
 
-        [Fact]
-        public async Task ShouldAddGuestAsync()
-        {
-            //Arrange
-            Guest randomGuest = new Guest
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Alex",
-                LastName = "Doe",
-                Address = "Brooks Str. #12",
-                DateOfBirth = new DateTimeOffset(),
-                Email = "random@mail.ru",
-                Gender = GenderType.Male,
-                PhoneNumber = "1234567890"
-            };
+        private static Guest CreateRandomGuest() =>
+            CreateGuestFiller(date: GetRandomDateTimeOffset()).Create();
 
-            this.storageBrokerMock.Setup(broker => 
-            broker.InsertGuestAsync(randomGuest))
-                .ReturnsAsync(randomGuest);
-            //Act
-            Guest actual = await this.guestService.AddGuestAsync(randomGuest);
-            //Assert
-            actual.Should().BeEquivalentTo(randomGuest);
+        private static DateTimeOffset GetRandomDateTimeOffset() =>
+            new DateTimeRange(earliestDate: new DateTime()).GetValue();
+
+        private static Filler<Guest> CreateGuestFiller(DateTimeOffset date)
+        {
+            var filler = new Filler<Guest>();
+
+            filler.Setup()
+                .OnType<DateTimeOffset>().Use(date);
+
+            return filler;
         }
     }
 }
