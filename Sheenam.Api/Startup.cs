@@ -41,7 +41,6 @@ namespace Sheenam.Api
             });
         }
 
-
         public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
         {
             if (environment.IsDevelopment())
