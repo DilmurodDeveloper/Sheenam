@@ -63,7 +63,6 @@ namespace Sheenam.Api
             app.UseEndpoints(endpoints =>
                 endpoints.MapControllers());
         }
-
         private static void AddBrokers(IServiceCollection services)
         {
             services.AddTransient<IStorageBroker, StorageBroker>();
