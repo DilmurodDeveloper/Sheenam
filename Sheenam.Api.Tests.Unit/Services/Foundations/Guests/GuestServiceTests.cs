@@ -12,6 +12,8 @@ using Sheenam.Api.Services.Foundations.Guests;
 using Tynamix.ObjectFiller;
 using Castle.Core.Logging;
 using Sheenam.Api.Brokers.Loggings;
+using System.Linq.Expressions;
+using Xeptions;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 {
@@ -37,6 +39,14 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: new DateTime()).GetValue();
+
+        private Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException)
+        {
+            return actualException =>
+                actualException.Message == expectedException.Message
+                && actualException.InnerException.Message == expectedException.InnerException.Message
+                && (actualException.InnerException as Xeption).DataEquals(expectedException.InnerException.Data);
+        }
 
         private static Filler<Guest> CreateGuestFiller(DateTimeOffset date)
         {
