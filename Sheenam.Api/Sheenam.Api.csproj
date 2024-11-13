@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="C:\Users\madir\.nuget\packages\adotnet\3.0.4\contentFiles\any\netstandard2.1\License.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ADotNet" Version="3.0.4" />
     <PackageReference Include="EFxceptions" Version="0.4.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
