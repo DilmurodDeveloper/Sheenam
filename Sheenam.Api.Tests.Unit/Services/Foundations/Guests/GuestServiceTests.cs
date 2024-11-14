@@ -4,13 +4,10 @@
 //=================================================
 
 using Moq;
-using Xunit;
-using FluentAssertions;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
 using Sheenam.Api.Services.Foundations.Guests;
 using Tynamix.ObjectFiller;
-using Castle.Core.Logging;
 using Sheenam.Api.Brokers.Loggings;
 using System.Linq.Expressions;
 using Xeptions;
@@ -44,6 +41,9 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();
+
+        private static string GetRandomString() =>
+            new MnemonicString().GetValue();
 
         private static SqlException GetSqlError() =>
             (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
