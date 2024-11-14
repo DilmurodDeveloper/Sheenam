@@ -14,6 +14,8 @@ using Castle.Core.Logging;
 using Sheenam.Api.Brokers.Loggings;
 using System.Linq.Expressions;
 using Xeptions;
+using Microsoft.Data.SqlClient;
+using System.Runtime.Serialization;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 {
@@ -42,6 +44,9 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();
+
+        private static SqlException GetSqlError() =>
+            (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
 
         private static T GetInvalidEnum<T>()
         {
