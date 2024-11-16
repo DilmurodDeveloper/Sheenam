@@ -16,7 +16,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
         private readonly ILoggingBroker loggingBroker;
 
         public GuestService(
-            IStorageBroker storageBroker, 
+            IStorageBroker storageBroker,
             ILoggingBroker loggingBroker)
         {
             this.storageBroker = storageBroker;

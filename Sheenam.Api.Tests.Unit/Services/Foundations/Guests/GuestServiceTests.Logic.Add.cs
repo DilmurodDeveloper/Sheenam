@@ -3,11 +3,11 @@
 //Free To Use To Find Comfort and Peace   
 //=================================================
 
-using Moq;
-using Xunit;
-using Sheenam.Api.Models.Foundations.Guests;
 using FluentAssertions;
 using Force.DeepCloner;
+using Moq;
+using Sheenam.Api.Models.Foundations.Guests;
+using Xunit;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 {
@@ -23,11 +23,11 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
             Guest expectedGuest = storageGuest.DeepClone();
 
 
-            this.storageBrokerMock.Setup(broker =>  
+            this.storageBrokerMock.Setup(broker =>
                 broker.InsertGuestAsync(inputGuest))
                     .ReturnsAsync(storageGuest);
             // when
-            Guest actualGuest = 
+            Guest actualGuest =
                 await this.guestService.AddGuestAsync(inputGuest);
 
             // then

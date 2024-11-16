@@ -4,7 +4,6 @@
 //=================================================
 
 using System;
-using System.Data;
 using Sheenam.Api.Models.Foundations.Guests;
 using Sheenam.Api.Models.Foundations.Guests.Exceptions;
 
@@ -12,7 +11,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
 {
     public partial class GuestService
     {
-        private void ValidateGuestOnAdd(Guest guest) 
+        private void ValidateGuestOnAdd(Guest guest)
         {
             ValidateGuestNotNull(guest);
 
@@ -23,7 +22,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 (Rule: IsInvalid(guest.DateOfBirth), Parameter: nameof(Guest.DateOfBirth)),
                 (Rule: IsInvalid(guest.Email), Parameter: nameof(Guest.Email)),
                 (Rule: IsInvalid(guest.Address), Parameter: nameof(Guest.Address)),
-                (Rule: IsInvalid(guest.Gender), Parameter: nameof(Guest.Gender)));  
+                (Rule: IsInvalid(guest.Gender), Parameter: nameof(Guest.Gender)));
         }
 
         private void ValidateGuestNotNull(Guest guest)
@@ -48,7 +47,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
         private static dynamic IsInvalid(DateTimeOffset date) => new
         {
-            Condition = date == default, 
+            Condition = date == default,
             Message = "Date is required"
         };
 

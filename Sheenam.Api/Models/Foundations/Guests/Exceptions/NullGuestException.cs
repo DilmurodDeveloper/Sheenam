@@ -9,7 +9,7 @@ namespace Sheenam.Api.Models.Foundations.Guests.Exceptions
 {
     public class NullGuestException : Xeption
     {
-        public NullGuestException() 
+        public NullGuestException()
             : base(message: "Guest is null")
         { }
     }

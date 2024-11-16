@@ -4,7 +4,6 @@
 //=================================================
 
 
-using System.Threading.Tasks;
 using Moq;
 using Sheenam.Api.Models.Foundations.Guests;
 using Sheenam.Api.Models.Foundations.Guests.Exceptions;
@@ -21,22 +20,22 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
             Guest nullGuest = null;
             var nullGuestException = new NullGuestException();
 
-            var expectedGuestValidationException = 
+            var expectedGuestValidationException =
                 new GuestValidationException(nullGuestException);
 
             // when
-            ValueTask<Guest> addGuestTask = 
+            ValueTask<Guest> addGuestTask =
                 this.guestService.AddGuestAsync(nullGuest);
 
             // then
             await Assert.ThrowsAsync<GuestValidationException>(() =>
                 addGuestTask.AsTask());
 
-            this.loggingBrokerMock.Verify(broker => 
+            this.loggingBrokerMock.Verify(broker =>
                 broker.LogError(It.Is(SameExceptionAs(expectedGuestValidationException))),
                     Times.Once);
 
-            this.storageBrokerMock.Verify(broker => 
+            this.storageBrokerMock.Verify(broker =>
                 broker.InsertGuestAsync(It.IsAny<Guest>()),
                     Times.Never);
 
@@ -120,7 +119,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
                 key: nameof(Guest.Gender),
                 values: "Value is invalid");
 
-            var expectedGuestValidationException = 
+            var expectedGuestValidationException =
                 new GuestValidationException(invalidGuestException);
 
             // when
@@ -128,7 +127,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
                 this.guestService.AddGuestAsync(invalidGuest);
 
             // then
-            await Assert.ThrowsAsync<GuestValidationException>(() => 
+            await Assert.ThrowsAsync<GuestValidationException>(() =>
                 addGuestTask.AsTask());
 
             this.loggingBrokerMock.Verify(broker =>
