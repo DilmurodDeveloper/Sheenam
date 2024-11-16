@@ -4,16 +4,15 @@
 //=================================================
 
 using Moq;
-using Xunit;
-using FluentAssertions;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
 using Sheenam.Api.Services.Foundations.Guests;
 using Tynamix.ObjectFiller;
-using Castle.Core.Logging;
 using Sheenam.Api.Brokers.Loggings;
 using System.Linq.Expressions;
 using Xeptions;
+using Microsoft.Data.SqlClient;
+using System.Runtime.Serialization;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 {
@@ -43,6 +42,12 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();
 
+        private static string GetRandomString() =>
+            new MnemonicString().GetValue();
+
+        private static SqlException GetSqlError() =>
+            (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
+
         private static T GetInvalidEnum<T>()
         {
             int randomNumber = GetRandomNumber();
@@ -55,13 +60,8 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
             return (T)(object)randomNumber;
         }
 
-        private Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException)
-        {
-            return actualException =>
-                actualException.Message == expectedException.Message
-                && actualException.InnerException.Message == expectedException.InnerException.Message
-                && (actualException.InnerException as Xeption).DataEquals(expectedException.InnerException.Data);
-        }
+        private Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) => 
+            actualException => actualException.SameExceptionAs(expectedException);
 
         private static Filler<Guest> CreateGuestFiller(DateTimeOffset date)
         {
