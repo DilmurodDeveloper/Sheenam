@@ -9,7 +9,7 @@ namespace Sheenam.Api.Models.Foundations.Guests.Exceptions
 {
     public class InvalidGuestException : Xeption
     {
-        public InvalidGuestException() 
+        public InvalidGuestException()
             : base(message: "Guest is invalid")
         { }
     }
