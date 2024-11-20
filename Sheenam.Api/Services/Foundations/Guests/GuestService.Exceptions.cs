@@ -4,6 +4,7 @@
 //=================================================
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using Microsoft.Data.SqlClient;
@@ -16,6 +17,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
     public partial class GuestService
     {
         private delegate ValueTask<Guest> ReturningGuestFunction();
+        private delegate IQueryable<Guest> ReturningGuestsFunction();
 
         private async ValueTask<Guest> TryCatch(ReturningGuestFunction returningGuestFunction)
         {
@@ -43,6 +45,10 @@ namespace Sheenam.Api.Services.Foundations.Guests
                     new AlreadyExistGuestException(duplicateKeyException);
 
                 throw CreateAndLogDependencyValidationException(alreadyExistGuestException);
+            }
+            catch (NotFoundGuestException notFoundGuestException)
+            {
+                throw CreateAndLogValidationException(notFoundGuestException);
             }
             catch (Exception exception)
             {
@@ -89,6 +95,20 @@ namespace Sheenam.Api.Services.Foundations.Guests
             this.loggingBroker.LogError(guestServiceException);
 
             return guestServiceException;
+        }
+
+        private IQueryable<Guest> TryCatch(ReturningGuestsFunction returningGuestsFunction)
+        {
+            try
+            {
+                return returningGuestsFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedGuestStorageException = new FailedGuestStorageException(sqlException);
+
+                throw CreateAndLogCriticalDependencyException(failedGuestStorageException);
+            }
         }
     }
 }

@@ -3,6 +3,8 @@
 //Free To Use To Find Comfort and Peace   
 //=================================================
 
+using System.Linq;
+using System;
 using System.Threading.Tasks;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
@@ -30,5 +32,48 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
             return await this.storageBroker.InsertGuestAsync(guest);
         });
+
+        public IQueryable<Guest> RetrieveAllGuests() =>
+            TryCatch(() => this.storageBroker.SelectAllGuests());
+
+
+        public ValueTask<Guest> RetrieveGuestByIdAsync(Guid guestId) =>
+            TryCatch(async () =>
+            {
+                ValidateGuestId(guestId);
+
+                Guest maybeGuest =
+                    await storageBroker.SelectGuestByIdAsync(guestId);
+            
+                ValidateStorageGuestExists(maybeGuest, guestId);
+            
+                return maybeGuest;
+            });
+
+        public ValueTask<Guest> ModifyGuestAsync(Guest Guest) =>
+           TryCatch(async () =>
+           {
+               ValidateGuestOnModify(Guest);
+
+               var maybeGuest =
+                   await this.storageBroker.SelectGuestByIdAsync(Guest.Id);
+
+               ValidateAgainstStorageGuestOnModify(inputGuest: Guest, storageGuest: maybeGuest);
+
+               return await this.storageBroker.UpdateGuestAsync(Guest);
+           });
+
+        public ValueTask<Guest> RemoveGuestByIdAsync(Guid GuestId) =>
+          TryCatch(async () =>
+          {
+              ValidateGuestId(GuestId);
+
+              Guest maybeGuest =
+                  await this.storageBroker.SelectGuestByIdAsync(GuestId);
+
+              ValidateStorageGuestExists(maybeGuest, GuestId);
+
+              return await this.storageBroker.DeleteGuestAsync(maybeGuest);
+          });
     }
 }
