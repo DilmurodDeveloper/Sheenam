@@ -3,6 +3,8 @@
 //Free To Use To Find Comfort and Peace   
 //=================================================
 
+using System.Linq;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RESTFulSense.Controllers;
@@ -18,10 +20,9 @@ namespace Sheenam.Api.Controllers
     {
         private readonly IGuestService guestService;
 
-        public GuestsController(IGuestService guestService)
-        {
+        public GuestsController(IGuestService guestService) =>  
             this.guestService = guestService;
-        }
+        
 
         [HttpPost]
         public async ValueTask<ActionResult<Guest>> PostGuestAsync(Guest guest)
@@ -52,6 +53,117 @@ namespace Sheenam.Api.Controllers
             catch (GuestServiceException guestServiceException)
             {
                 return InternalServerError(guestServiceException.InnerException);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult<IQueryable<Guest>> GetAllGuests()
+        {
+            try
+            {
+                IQueryable<Guest> allGuests = this.guestService.RetrieveAllGuests();
+
+                return Ok(allGuests);
+            }
+            catch (GuestDependencyException GuestDependencyException)
+            {
+                return InternalServerError(GuestDependencyException.InnerException);
+            }
+            catch (GuestServiceException GuestServiceException)
+            {
+                return InternalServerError(GuestServiceException.InnerException);
+            }
+        }
+
+        [HttpGet("{guestId}")]
+        public async ValueTask<ActionResult<Guest>> GetGuestByIdAsync(Guid guestId)
+        {
+            try
+            {
+                return await this.guestService.RetrieveGuestByIdAsync(guestId);
+            }
+            catch (GuestDependencyException GuestDependencyException)
+            {
+                return InternalServerError(GuestDependencyException.InnerException);
+            }
+            catch (GuestValidationException GuestValidationException)
+                when (GuestValidationException.InnerException is InvalidGuestException)
+            {
+                return BadRequest(GuestValidationException.InnerException);
+            }
+            catch (GuestValidationException GuestValidationException)
+                when (GuestValidationException.InnerException is NotFoundGuestException)
+            {
+                return NotFound(GuestValidationException.InnerException);
+            }
+            catch (GuestServiceException GuestServiceException)
+            {
+                return InternalServerError(GuestServiceException.InnerException);
+            }
+        }
+
+        [HttpPut]
+        public async ValueTask<ActionResult<Guest>> PutGuestAsync(Guest Guest)
+        {
+            try
+            {
+                Guest modifiedGuest =
+                    await this.guestService.ModifyGuestAsync(Guest);
+
+                return Ok(modifiedGuest);
+            }
+            catch (GuestValidationException GuestValidationException)
+                when (GuestValidationException.InnerException is NotFoundGuestException)
+            {
+                return NotFound(GuestValidationException.InnerException);
+            }
+            catch (GuestValidationException GuestValidationException)
+            {
+                return BadRequest(GuestValidationException.InnerException);
+            }
+            catch (GuestDependencyValidationException GuestDependencyValidationException)
+            {
+                return BadRequest(GuestDependencyValidationException.InnerException);
+            }
+            catch (GuestDependencyException GuestDependencyException)
+            {
+                return InternalServerError(GuestDependencyException.InnerException);
+            }
+            catch (GuestServiceException GuestServiceException)
+            {
+                return InternalServerError(GuestServiceException.InnerException);
+            }
+        }
+        [HttpDelete]
+        public async ValueTask<ActionResult<Guest>> DeleteGuestByIdAsync(Guid id)
+        {
+            try
+            {
+                Guest deletedGuest = await this.guestService.RemoveGuestByIdAsync(id);
+
+                return Ok(deletedGuest);
+            }
+            catch (GuestValidationException GuestValidationException)
+                when (GuestValidationException.InnerException is NotFoundGuestException)
+            {
+                return NotFound(GuestValidationException.InnerException);
+            }
+            catch (GuestValidationException GuestValidationException)
+            {
+                return BadRequest(GuestValidationException.InnerException);
+            }
+
+            catch (GuestDependencyValidationException GuestDependencyValidationException)
+            {
+                return BadRequest(GuestDependencyValidationException.InnerException);
+            }
+            catch (GuestDependencyException GuestDependencyException)
+            {
+                return InternalServerError(GuestDependencyException.InnerException);
+            }
+            catch (GuestServiceException GuestServiceException)
+            {
+                return InternalServerError(GuestServiceException.InnerException);
             }
         }
     }

@@ -3,6 +3,8 @@
 //Free To Use To Find Comfort and Peace   
 //=================================================
 
+using System.Linq;
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -25,5 +27,17 @@ namespace Sheenam.Api.Brokers.Storages
 
             return guestEntityEntry.Entity;
         }
+
+        public IQueryable<Guest> SelectAllGuests() =>
+            SelectAll<Guest>();
+
+        public async ValueTask<Guest> SelectGuestByIdAsync(Guid guestId) =>
+            await SelectAsync<Guest>(guestId);
+
+        public async ValueTask<Guest> UpdateGuestAsync(Guest guest) =>
+            await UpdateAsync(guest);
+
+        public async ValueTask<Guest> DeleteGuestAsync(Guest guest) =>
+            await DeleteAsync<Guest>(guest);
     }
 }
