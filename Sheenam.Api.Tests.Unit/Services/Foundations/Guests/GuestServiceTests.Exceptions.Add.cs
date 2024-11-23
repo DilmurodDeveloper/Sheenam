@@ -20,7 +20,9 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
             // given
             Guest someGuest = CreateRandomGuest();
             SqlException sqlException = GetSqlError();
-            var failedGuestStorageException = new FailedGuestStorageException(sqlException);
+
+            var failedGuestStorageException = 
+                new FailedGuestStorageException(sqlException);
 
             var expectedGuestDependencyException =
                 new GuestDependencyException(failedGuestStorageException);

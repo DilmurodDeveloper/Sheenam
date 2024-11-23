@@ -48,6 +48,12 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
         private static SqlException GetSqlError() =>
             (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
 
+        private IQueryable<Guest> CreateRandomGuests()
+        {
+            return CreateGuestFiller(GetRandomDateTimeOffset())
+                .Create(count: GetRandomNumber()).AsQueryable();
+        }
+
         private static T GetInvalidEnum<T>()
         {
             int randomNumber = GetRandomNumber();
