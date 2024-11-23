@@ -75,5 +75,15 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
               return await this.storageBroker.DeleteGuestAsync(maybeGuest);
           });
+
+        public ValueTask<Guest> RemoveGuestByIdAsync(object someId)
+        {
+            if (someId is Guid guestId)
+            {
+                return RemoveGuestByIdAsync(guestId);
+            }
+
+            throw new ArgumentException("Invalid ID type. Expected a Guid.");
+        }
     }
 }
