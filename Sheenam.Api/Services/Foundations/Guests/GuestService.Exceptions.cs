@@ -4,6 +4,7 @@
 //=================================================
 
 using System;
+using Xeptions;
 using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
@@ -11,7 +12,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Models.Foundations.Guests;
 using Sheenam.Api.Models.Foundations.Guests.Exceptions;
-using Xeptions;
 
 namespace Sheenam.Api.Services.Foundations.Guests
 {
@@ -117,7 +117,8 @@ namespace Sheenam.Api.Services.Foundations.Guests
             return guestDependencyException;
         }
 
-        private GuestDependencyValidationException CreateAndLogDependencyValidationException(Xeption exception)
+        private GuestDependencyValidationException CreateAndLogDependencyValidationException(
+            Xeption exception)
         {
             var guestDependencyValidationException =
                 new GuestDependencyValidationException(exception);
@@ -129,7 +130,9 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
         private GuestDependencyException CreateAndLogCriticalDependencyException(Xeption exception)
         {
-            var guestDependencyException = new GuestDependencyException(exception);
+            var guestDependencyException = 
+                new GuestDependencyException(exception);
+            
             this.loggingBroker.LogCritical(guestDependencyException);
 
             return guestDependencyException;
