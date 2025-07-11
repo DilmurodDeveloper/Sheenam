@@ -8,9 +8,10 @@ using Sheenam.Api.Brokers.Storages;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<StorageBroker>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddDbContext<StorageBroker>();
+builder.Services.AddTransient<IStorageBroker, StorageBroker>();
 
 builder.Services.AddSwaggerGen(options =>
 {
