@@ -3,10 +3,10 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Moq;
 using FluentAssertions;
-using Sheenam.Api.Models.Foundations.Guests;
 using Force.DeepCloner;
+using Moq;
+using Sheenam.Api.Models.Foundations.Guests;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 {
