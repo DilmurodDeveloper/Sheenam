@@ -6,6 +6,7 @@
 using Moq;
 using FluentAssertions;
 using Sheenam.Api.Models.Foundations.Guests;
+using Force.DeepCloner;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
 {
@@ -18,7 +19,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
             Guest randomGuest = CreateRandomGuest();
             Guest inputGuest = randomGuest;
             Guest storageGuest = inputGuest;
-            Guest expectedGuest = storageGuest;
+            Guest expectedGuest = storageGuest.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
                 broker.InsertGuestAsync(inputGuest))

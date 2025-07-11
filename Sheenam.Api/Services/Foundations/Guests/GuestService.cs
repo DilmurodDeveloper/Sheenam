@@ -7,11 +7,6 @@ using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
 
-// = = = = = = = = = = = = = = = = = = = = = = = = = 
-// Copyright (c) Coalition of Good-Hearted Engineers
-// Free To Use To Find Comfort and Peace    
-// = = = = = = = = = = = = = = = = = = = = = = = = = 
-
 namespace Sheenam.Api.Services.Foundations.Guests
 {
     public class GuestService : IGuestService
@@ -27,7 +22,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<Guest> AddGuestAsync(Guest guest) =>
-            throw new NotImplementedException();
+        public async ValueTask<Guest> AddGuestAsync(Guest guest) =>
+            await this.storageBroker.InsertGuestAsync(guest);
     }
 }
