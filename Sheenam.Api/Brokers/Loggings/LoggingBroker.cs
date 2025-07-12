@@ -3,7 +3,6 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-
 namespace Sheenam.Api.Brokers.Loggings
 {
     public class LoggingBroker : ILoggingBroker
