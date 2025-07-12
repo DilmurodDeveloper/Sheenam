@@ -6,6 +6,7 @@
 using Microsoft.OpenApi.Models;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
+using Sheenam.Api.Services.Foundations.Guests;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<StorageBroker>();
 builder.Services.AddTransient<IStorageBroker, StorageBroker>();
 builder.Services.AddTransient<ILoggingBroker, LoggingBroker>();
+builder.Services.AddTransient<IGuestService, GuestService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
