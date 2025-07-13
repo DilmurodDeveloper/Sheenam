@@ -29,5 +29,8 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
             return await this.storageBroker.InsertGuestAsync(guest);
         });
+
+        public IQueryable<Guest> RetrieveAllGuests() =>
+            throw new NotImplementedException();
     }
 }
