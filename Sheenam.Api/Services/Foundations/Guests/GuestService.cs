@@ -3,11 +3,9 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
-using Sheenam.Api.Models.Foundations.Guests.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.Guests
 {
@@ -32,36 +30,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
             return await this.storageBroker.InsertGuestAsync(guest);
         });
 
-        public IQueryable<Guest> RetrieveAllGuests()
-        {
-            try
-            {
-                return this.storageBroker.SelectAllGuests();
-            }
-            catch (SqlException sqlException)
-            {
-                var failedGuestStorageException =
-                    new FailedGuestStorageException(sqlException);
-
-                var guestDependencyException =
-                    new GuestDependencyException(failedGuestStorageException);
-
-                this.loggingBroker.LogCritical(guestDependencyException);
-
-                throw guestDependencyException;
-            }
-            catch (Exception serviceException)
-            {
-                var failedGuestServiceException =
-                    new FailedGuestServiceException(serviceException);
-
-                var guestServiceException =
-                    new GuestServiceException(failedGuestServiceException);
-
-                this.loggingBroker.LogError(guestServiceException);
-
-                throw guestServiceException;
-            }
-        }
+        public IQueryable<Guest> RetrieveAllGuests() =>
+            TryCatch(() => this.storageBroker.SelectAllGuests());
     }
 }
