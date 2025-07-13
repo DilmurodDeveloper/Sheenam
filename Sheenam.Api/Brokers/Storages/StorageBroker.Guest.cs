@@ -24,5 +24,13 @@ namespace Sheenam.Api.Brokers.Storages
 
             return guestEntitytry.Entity;
         }
+
+        public IQueryable<Guest> SelectAllGuests()
+        {
+            using var broker =
+                new StorageBroker(this.configuration);
+
+            return broker.Guests.AsNoTracking();
+        }
     }
 }
