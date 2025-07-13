@@ -53,5 +53,25 @@ namespace Sheenam.Api.Controllers
                 return InternalServerError(guestServiceException.InnerException);
             }
         }
+
+        [HttpGet("all")]
+        public ActionResult<IQueryable<Guest>> GetAllGuests()
+        {
+            try
+            {
+                IQueryable<Guest> allGuests =
+                    this.guestService.RetrieveAllGuests();
+
+                return Ok(allGuests);
+            }
+            catch (GuestDependencyException guestDependencyException)
+            {
+                return InternalServerError(guestDependencyException.InnerException);
+            }
+            catch (GuestServiceException guestServiceException)
+            {
+                return InternalServerError(guestServiceException.InnerException);
+            }
+        }
     }
 }
