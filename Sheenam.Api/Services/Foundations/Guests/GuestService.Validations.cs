@@ -56,6 +56,17 @@ namespace Sheenam.Api.Services.Foundations.Guests
             Message = "Value is invalid"
         };
 
+        private void ValidateGuestId(Guid guestId) =>
+            Validate((Rule: IsInvalid(guestId), Parameter: nameof(Guest.Id)));
+
+        private static void ValidateStorageGuest(Guest maybeGuest, Guid guestId)
+        {
+            if (maybeGuest is null)
+            {
+                throw new NotFoundGuestException(guestId);
+            }
+        }
+
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidGuestException = new InvalidGuestException();
