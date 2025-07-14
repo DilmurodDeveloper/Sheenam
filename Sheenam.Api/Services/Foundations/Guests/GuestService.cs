@@ -3,9 +3,11 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+using System;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
+using Sheenam.Api.Models.Foundations.Guests.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.Guests
 {
@@ -33,17 +35,37 @@ namespace Sheenam.Api.Services.Foundations.Guests
         public IQueryable<Guest> RetrieveAllGuests() =>
             TryCatch(() => this.storageBroker.SelectAllGuests());
 
-        public ValueTask<Guest> RetrieveGuestByIdAsync(Guid guestId) =>
-        TryCatch(async () =>
+        public async ValueTask<Guest> RetrieveGuestByIdAsync(Guid guestId)
         {
-            ValidateGuestId(guestId);
+            try
+            {
+                ValidateGuestId(guestId);
 
-            Guest maybeGuest =
-                await this.storageBroker.SelectGuestByIdAsync(guestId);
+                Guest maybeGuest =
+                    await this.storageBroker.SelectGuestByIdAsync(guestId);
 
-            ValidateStorageGuest(maybeGuest, guestId);
+                ValidateStorageGuest(maybeGuest, guestId);
 
-            return maybeGuest;
-        });
+                return maybeGuest;
+            }
+            catch (InvalidGuestException invalidGuestException)
+            {
+                var guestValidationException =
+                    new GuestValidationException(invalidGuestException);
+
+                this.loggingBroker.LogError(guestValidationException);
+
+                throw guestValidationException;
+            }
+            catch (NotFoundGuestException notFoundGuestException)
+            {
+                var guestValidationException =
+                    new GuestValidationException(notFoundGuestException);
+
+                this.loggingBroker.LogError(guestValidationException);
+
+                throw guestValidationException;
+            }
+        }
     }
 }
