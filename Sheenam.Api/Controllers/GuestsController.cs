@@ -62,11 +62,40 @@ namespace Sheenam.Api.Controllers
                 IQueryable<Guest> allGuests =
                     this.guestService.RetrieveAllGuests();
 
-                return Ok(allGuests);
+                return Created(allGuests);
             }
             catch (GuestDependencyException guestDependencyException)
             {
                 return InternalServerError(guestDependencyException.InnerException);
+            }
+            catch (GuestServiceException guestServiceException)
+            {
+                return InternalServerError(guestServiceException.InnerException);
+            }
+        }
+
+        [HttpGet("{guestId}")]
+        public async ValueTask<ActionResult<Guest>> GetGuestByIdAsync(Guid guestId)
+        {
+            try
+            {
+                Guest maybeGuest =
+                    await this.guestService.RetrieveGuestByIdAsync(guestId);
+
+                return Created(maybeGuest);
+            }
+            catch (GuestDependencyException guestDependencyException)
+            {
+                return InternalServerError(guestDependencyException.InnerException);
+            }
+            catch (GuestValidationException guestValidationException)
+                 when (guestValidationException.InnerException is NotFoundGuestException)
+            {
+                return BadRequest(guestValidationException.InnerException);
+            }
+            catch (GuestValidationException guestValidationException)
+            {
+                return BadRequest(guestValidationException.InnerException);
             }
             catch (GuestServiceException guestServiceException)
             {
