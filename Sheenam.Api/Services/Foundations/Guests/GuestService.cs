@@ -4,6 +4,7 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using System;
+using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
@@ -65,6 +66,18 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 this.loggingBroker.LogError(guestValidationException);
 
                 throw guestValidationException;
+            }
+            catch (SqlException sqlException)
+            {
+                var failedGuestStorageException =
+                    new FailedGuestStorageException(sqlException);
+
+                var guestDependencyException =
+                    new GuestDependencyException(failedGuestStorageException);
+
+                this.loggingBroker.LogCritical(guestDependencyException);
+
+                throw guestDependencyException;
             }
         }
     }
