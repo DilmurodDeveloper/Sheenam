@@ -24,6 +24,20 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 (Rule: IsInvalid(guest.Gender), Parameter: nameof(Guest.Gender)));
         }
 
+        private void ValidateGuestOnModify(Guest guest)
+        {
+            ValidateGuestNotNull(guest);
+
+            Validate(
+              (Rule: IsInvalid(guest.Id), Parameter: nameof(guest.Id)),
+              (Rule: IsInvalid(guest.FirstName), Parameter: nameof(guest.FirstName)),
+              (Rule: IsInvalid(guest.LastName), Parameter: nameof(guest.LastName)),
+              (Rule: IsInvalid(guest.DateOfBirth), Parameter: nameof(guest.DateOfBirth)),
+              (Rule: IsInvalid(guest.Email), Parameter: nameof(guest.Email)),
+              (Rule: IsInvalid(guest.Address), Parameter: nameof(guest.Address)),
+              (Rule: IsInvalid(guest.Gender), Parameter: nameof(guest.Gender)));
+        }
+
         private void ValidateGuestNotNull(Guest guest)
         {
             if (guest is null)
