@@ -38,6 +38,17 @@ namespace Sheenam.Api.Services.Foundations.Guests
               (Rule: IsInvalid(guest.Gender), Parameter: nameof(guest.Gender)));
         }
 
+        private static void ValidateAgainstStorageGuestOnModify(Guest inputGuest, Guest storageGuest)
+        {
+            ValidateStorageGuest(storageGuest, inputGuest.Id);
+            Validate(
+            (Rule: IsNotSame(
+                   firstGuid: inputGuest.Id,
+                   secondGuid: storageGuest.Id,
+                   secondDateName: nameof(Guest.DateOfBirth)),
+                   Parameter: nameof(Guest.DateOfBirth)));
+        }
+
         private void ValidateGuestNotNull(Guest guest)
         {
             if (guest is null)
@@ -72,6 +83,15 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
         private void ValidateGuestId(Guid guestId) =>
             Validate((Rule: IsInvalid(guestId), Parameter: nameof(Guest.Id)));
+
+        private static dynamic IsNotSame(
+            Guid firstGuid,
+            Guid secondGuid,
+            string secondDateName) => new
+            {
+                Condition = firstGuid != secondGuid,
+                Message = $"Guid is not same as {secondDateName}"
+            };
 
         private static void ValidateStorageGuest(Guest maybeGuest, Guid guestId)
         {

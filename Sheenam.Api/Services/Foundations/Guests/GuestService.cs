@@ -56,6 +56,8 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 Guest maybeGuest =
                     await this.storageBroker.SelectGuestByIdAsync(guest.Id);
 
+                ValidateAgainstStorageGuestOnModify(inputGuest: guest, storageGuest: maybeGuest);
+
                 return await this.storageBroker.UpdateGuestAsync(guest);
             }
             catch (NullGuestException nullGuestException)
@@ -71,6 +73,15 @@ namespace Sheenam.Api.Services.Foundations.Guests
             {
                 var guestValidationException =
                     new GuestValidationException(invalidGuestException);
+
+                this.loggingBroker.LogError(guestValidationException);
+
+                throw guestValidationException;
+            }
+            catch (NotFoundGuestException notFoundGuestException)
+            {
+                var guestValidationException =
+                    new GuestValidationException(notFoundGuestException);
 
                 this.loggingBroker.LogError(guestValidationException);
 
