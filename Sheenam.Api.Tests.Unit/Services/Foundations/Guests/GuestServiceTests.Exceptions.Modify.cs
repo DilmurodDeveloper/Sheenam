@@ -37,7 +37,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
                 this.guestService.ModifyGuestAsync(someGuest);
 
             GuestDependencyException actualGuestDependencyException =
-                await Assert.ThrowsAsync<GuestDependencyException>(() => 
+                await Assert.ThrowsAsync<GuestDependencyException>(() =>
                     modifyGuestTask.AsTask());
 
             // then

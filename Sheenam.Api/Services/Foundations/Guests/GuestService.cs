@@ -3,12 +3,9 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Guests;
-using Sheenam.Api.Models.Foundations.Guests.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.Guests
 {
@@ -49,94 +46,19 @@ namespace Sheenam.Api.Services.Foundations.Guests
             return maybeGuest;
         });
 
-        public async ValueTask<Guest> ModifyGuestAsync(Guest guest)
+        public ValueTask<Guest> ModifyGuestAsync(Guest guest) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateGuestOnModify(guest);
+            ValidateGuestOnModify(guest);
 
-                Guest maybeGuest =
-                    await this.storageBroker.SelectGuestByIdAsync(guest.Id);
+            Guest maybeGuest =
+                await this.storageBroker.SelectGuestByIdAsync(guest.Id);
 
-                ValidateAgainstStorageGuestOnModify(inputGuest: guest, storageGuest: maybeGuest);
+            ValidateAgainstStorageGuestOnModify(
+                inputGuest: guest,
+                storageGuest: maybeGuest);
 
-                return await this.storageBroker.UpdateGuestAsync(guest);
-            }
-            catch (NullGuestException nullGuestException)
-            {
-                var guestValidationException =
-                    new GuestValidationException(nullGuestException);
-
-                this.loggingBroker.LogError(guestValidationException);
-
-                throw guestValidationException;
-            }
-            catch (InvalidGuestException invalidGuestException)
-            {
-                var guestValidationException =
-                    new GuestValidationException(invalidGuestException);
-
-                this.loggingBroker.LogError(guestValidationException);
-
-                throw guestValidationException;
-            }
-            catch (NotFoundGuestException notFoundGuestException)
-            {
-                var guestValidationException =
-                    new GuestValidationException(notFoundGuestException);
-
-                this.loggingBroker.LogError(guestValidationException);
-
-                throw guestValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedGuestStorageException =
-                    new FailedGuestStorageException(sqlException);
-
-                var guestDependencyException =
-                    new GuestDependencyException(failedGuestStorageException);
-
-                this.loggingBroker.LogCritical(guestDependencyException);
-
-                throw guestDependencyException;
-            }
-            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
-            {
-                var failedGuestStorageException =
-                    new FailedGuestStorageException(dbUpdateConcurrencyException);
-
-                var guestDependencyValidationException =
-                    new GuestDependencyValidationException(failedGuestStorageException);
-
-                this.loggingBroker.LogError(guestDependencyValidationException);
-
-                throw guestDependencyValidationException;
-            }
-            catch (DbUpdateException dbUpdateException)
-            {
-                var failedGuestStorageException =
-                    new FailedGuestStorageException(dbUpdateException);
-
-                var guestDependencyException =
-                    new GuestDependencyException(failedGuestStorageException);
-
-                this.loggingBroker.LogError(guestDependencyException);
-
-                throw guestDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedGuestServiceException =
-                    new FailedGuestServiceException(exception);
-
-                var guestServiceException =
-                    new GuestServiceException(failedGuestServiceException);
-
-                this.loggingBroker.LogError(guestServiceException);
-
-                throw guestServiceException;
-            }
-        }
+            return await this.storageBroker.UpdateGuestAsync(guest);
+        });
     }
 }
