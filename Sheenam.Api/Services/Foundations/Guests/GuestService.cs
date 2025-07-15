@@ -113,6 +113,18 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
                 throw guestDependencyValidationException;
             }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedGuestStorageException =
+                    new FailedGuestStorageException(dbUpdateException);
+
+                var guestDependencyException =
+                    new GuestDependencyException(failedGuestStorageException);
+
+                this.loggingBroker.LogError(guestDependencyException);
+
+                throw guestDependencyException;
+            }
         }
     }
 }
