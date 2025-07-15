@@ -62,7 +62,7 @@ namespace Sheenam.Api.Controllers
                 IQueryable<Guest> allGuests =
                     this.guestService.RetrieveAllGuests();
 
-                return Created(allGuests);
+                return Ok(allGuests);
             }
             catch (GuestDependencyException guestDependencyException)
             {
@@ -82,7 +82,7 @@ namespace Sheenam.Api.Controllers
                 Guest maybeGuest =
                     await this.guestService.RetrieveGuestByIdAsync(guestId);
 
-                return Created(maybeGuest);
+                return Ok(maybeGuest);
             }
             catch (GuestDependencyException guestDependencyException)
             {
@@ -91,7 +91,7 @@ namespace Sheenam.Api.Controllers
             catch (GuestValidationException guestValidationException)
                  when (guestValidationException.InnerException is NotFoundGuestException)
             {
-                return BadRequest(guestValidationException.InnerException);
+                return NotFound(guestValidationException.InnerException);
             }
             catch (GuestValidationException guestValidationException)
             {
@@ -100,6 +100,39 @@ namespace Sheenam.Api.Controllers
             catch (GuestServiceException guestServiceException)
             {
                 return InternalServerError(guestServiceException.InnerException);
+            }
+        }
+
+        [HttpPut]
+        public async ValueTask<ActionResult<Guest>> PutGuestAsync(Guest guest)
+        {
+            try
+            {
+                Guest modifiedGuest =
+                    await this.guestService.ModifyGuestAsync(guest);
+
+                return Ok(modifiedGuest);
+            }
+            catch (GuestValidationException GuestValidationException)
+                when (GuestValidationException.InnerException is NotFoundGuestException)
+            {
+                return NotFound(GuestValidationException.InnerException);
+            }
+            catch (GuestValidationException GuestValidationException)
+            {
+                return BadRequest(GuestValidationException.InnerException);
+            }
+            catch (GuestDependencyValidationException GuestDependencyValidationException)
+            {
+                return Conflict(GuestDependencyValidationException.InnerException);
+            }
+            catch (GuestDependencyException GuestDependencyException)
+            {
+                return InternalServerError(GuestDependencyException.InnerException);
+            }
+            catch (GuestServiceException GuestServiceException)
+            {
+                return InternalServerError(GuestServiceException.InnerException);
             }
         }
     }
