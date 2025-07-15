@@ -125,6 +125,18 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
                 throw guestDependencyException;
             }
+            catch (Exception exception)
+            {
+                var failedGuestServiceException =
+                    new FailedGuestServiceException(exception);
+
+                var guestServiceException =
+                    new GuestServiceException(failedGuestServiceException);
+
+                this.loggingBroker.LogError(guestServiceException);
+
+                throw guestServiceException;
+            }
         }
     }
 }
