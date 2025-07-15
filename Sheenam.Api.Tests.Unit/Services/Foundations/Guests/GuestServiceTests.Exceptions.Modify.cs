@@ -64,11 +64,11 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
             Guest someGuest = CreateRandomGuest();
             var dbUpdateConcurrencyException = new DbUpdateConcurrencyException();
 
-            var failedGuestStorageException =
-                new FailedGuestStorageException(dbUpdateConcurrencyException);
+            var lockedGuestException =
+                new LockedGuestException(dbUpdateConcurrencyException);
 
             var expectedGuestDependencyValidationException =
-                new GuestDependencyValidationException(failedGuestStorageException);
+                new GuestDependencyValidationException(lockedGuestException);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectGuestByIdAsync(someGuest.Id))
