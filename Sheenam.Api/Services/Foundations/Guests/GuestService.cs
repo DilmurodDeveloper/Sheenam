@@ -96,7 +96,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 throw guestValidationException;
             }
             catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
-            {   
+            {
                 var lockedGuestException =
                     new LockedGuestException(dbUpdateConcurrencyException);
 
@@ -118,6 +118,18 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 this.loggingBroker.LogCritical(guestDependencyException);
 
                 throw guestDependencyException;
+            }
+            catch (Exception exception)
+            {
+                var failedGuestServiceException =
+                    new FailedGuestServiceException(exception);
+
+                var guestServiceException =
+                    new GuestServiceException(failedGuestServiceException);
+
+                this.loggingBroker.LogError(guestServiceException);
+
+                throw guestServiceException;
             }
         }
     }

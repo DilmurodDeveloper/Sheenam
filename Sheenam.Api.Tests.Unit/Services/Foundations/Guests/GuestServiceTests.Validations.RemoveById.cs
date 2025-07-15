@@ -27,7 +27,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
                 new GuestValidationException(invalidGuestException);
 
             // when
-            ValueTask <Guest> removeGuestByIdTask =
+            ValueTask<Guest> removeGuestByIdTask =
                 this.guestService.RemoveGuestByIdAsync(invalidGuestId);
 
             GuestValidationException actualGuestValidationException =
