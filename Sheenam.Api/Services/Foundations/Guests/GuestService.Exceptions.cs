@@ -5,6 +5,7 @@
 
 using EFxceptions.Models.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Models.Foundations.Guests;
 using Sheenam.Api.Models.Foundations.Guests.Exceptions;
 using Xeptions;
@@ -47,6 +48,30 @@ namespace Sheenam.Api.Services.Foundations.Guests
                     new AlreadyExistGuestException(duplicateKeyException);
 
                 throw CreateAndLogDependencyValidationException(alreadyExistsGuestException);
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var failedGuestStorageException =
+                    new FailedGuestStorageException(dbUpdateConcurrencyException);
+
+                var guestDependencyValidationException =
+                    new GuestDependencyValidationException(failedGuestStorageException);
+
+                this.loggingBroker.LogError(guestDependencyValidationException);
+
+                throw guestDependencyValidationException;
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedGuestStorageException =
+                    new FailedGuestStorageException(dbUpdateException);
+
+                var guestDependencyException =
+                    new GuestDependencyException(failedGuestStorageException);
+
+                this.loggingBroker.LogError(guestDependencyException);
+
+                throw guestDependencyException;
             }
             catch (Exception exception)
             {
