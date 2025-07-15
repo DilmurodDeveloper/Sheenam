@@ -51,11 +51,11 @@ namespace Sheenam.Api.Services.Foundations.Guests
             }
             catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
             {
-                var failedGuestStorageException =
-                    new FailedGuestStorageException(dbUpdateConcurrencyException);
+                var lockedGuestException =
+                    new LockedGuestException(dbUpdateConcurrencyException);
 
                 var guestDependencyValidationException =
-                    new GuestDependencyValidationException(failedGuestStorageException);
+                    new GuestDependencyValidationException(lockedGuestException);
 
                 this.loggingBroker.LogError(guestDependencyValidationException);
 

@@ -15,11 +15,58 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
     public partial class GuestServiceTests
     {
         [Fact]
-        public async Task ShouldThrowCriticalDependencyExceptionOnModifyIfSqlErrorOccursAndLogItAsync()
+        public async Task ShouldThrowDependencyValidationOnRemoveByIdIdDependencyConccurencyErrorOccursAndLogItAsync()
         {
-            Guest randomGuest = CreateRandomGuest();
-            Guest someGuest = randomGuest;
-            Guid guestId = someGuest.Id;
+            // given
+            Guid someGuestId = Guid.NewGuid();
+            Guid inputGuestId = someGuestId;
+            var dbUpdateConcurrencyException = new DbUpdateConcurrencyException();
+
+            var lockedGuestException =
+                new LockedGuestException(dbUpdateConcurrencyException);
+
+            var expectedGuestDependencyValidationException =
+                new GuestDependencyValidationException(lockedGuestException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectGuestByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(dbUpdateConcurrencyException);
+
+            // when
+            ValueTask<Guest> removeGuestByIdTask =
+                this.guestService.RemoveGuestByIdAsync(inputGuestId);
+
+            GuestDependencyValidationException actualGuestDependencyValidationException =
+                    await Assert.ThrowsAsync<GuestDependencyValidationException>(() =>
+                        removeGuestByIdTask.AsTask());
+
+            // then
+            actualGuestDependencyValidationException.Should()
+                .BeEquivalentTo(expectedGuestDependencyValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectGuestByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedGuestDependencyValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.DeleteGuestAsync(It.IsAny<Guest>()),
+                    Times.Never);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnRemoveIfSqlErrorOccursAndLogItAsync()
+        {
+            // given
+            Guid someGuestId = Guid.NewGuid();
+            Guid inputGuestId = someGuestId;
             SqlException sqlException = GetSqlError();
 
             var failedGuestStorageException =
@@ -29,23 +76,23 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
                 new GuestDependencyException(failedGuestStorageException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectGuestByIdAsync(guestId))
+                broker.SelectGuestByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(sqlException);
 
             // when
-            ValueTask<Guest> modifyGuestTask =
-                this.guestService.ModifyGuestAsync(someGuest);
+            ValueTask<Guest> removeGuestByIdTask =
+                this.guestService.RemoveGuestByIdAsync(inputGuestId);
 
             GuestDependencyException actualGuestDependencyException =
                 await Assert.ThrowsAsync<GuestDependencyException>(() =>
-                    modifyGuestTask.AsTask());
+                    removeGuestByIdTask.AsTask());
 
             // then
             actualGuestDependencyException.Should()
                 .BeEquivalentTo(expectedGuestDependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectGuestByIdAsync(guestId),
+                broker.SelectGuestByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -58,94 +105,11 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
         }
 
         [Fact]
-        public async Task ShouldThrowDependencyValidationExceptionOnModifyIfDatabaseUpdateConcurrencyErrorOccursAndLogItAsync()
+        public async Task ShouldThrowServiceExceptionOnRemoveByIdIfServiceErrorOccursAndLogItAsync()
         {
             // given
-            Guest someGuest = CreateRandomGuest();
-            var dbUpdateConcurrencyException = new DbUpdateConcurrencyException();
-
-            var lockedGuestException =
-                new LockedGuestException(dbUpdateConcurrencyException);
-
-            var expectedGuestDependencyValidationException =
-                new GuestDependencyValidationException(lockedGuestException);
-
-            this.storageBrokerMock.Setup(broker =>
-                broker.SelectGuestByIdAsync(someGuest.Id))
-                    .ThrowsAsync(dbUpdateConcurrencyException);
-
-            // when
-            ValueTask<Guest> modifyGuestTask =
-                this.guestService.ModifyGuestAsync(someGuest);
-
-            GuestDependencyValidationException actualGuestDependencyValidationException =
-                await Assert.ThrowsAsync<GuestDependencyValidationException>(() =>
-                    modifyGuestTask.AsTask());
-
-            // then
-            actualGuestDependencyValidationException.Should()
-                .BeEquivalentTo(expectedGuestDependencyValidationException);
-
-            this.storageBrokerMock.Verify(broker =>
-                broker.SelectGuestByIdAsync(someGuest.Id),
-                    Times.Once);
-
-            this.loggingBrokerMock.Verify(broker =>
-                broker.LogError(It.Is(SameExceptionAs(
-                    expectedGuestDependencyValidationException))),
-                        Times.Once);
-
-            this.storageBrokerMock.VerifyNoOtherCalls();
-            this.loggingBrokerMock.VerifyNoOtherCalls();
-        }
-
-        [Fact]
-        public async Task ShouldThrowDependencyExceptionOnModifyIfDatabaseUpdateErrorOccursAndLogItAsync()
-        {
-            // given 
-            Guest someGuest = CreateRandomGuest();
-            var dbUpdateException = new DbUpdateException();
-
-            var failedStorageGuestException =
-                new FailedGuestStorageException(dbUpdateException);
-
-            var expectedGuestDependencyException =
-                new GuestDependencyException(failedStorageGuestException);
-
-            this.storageBrokerMock.Setup(broker =>
-                broker.SelectGuestByIdAsync(someGuest.Id))
-                    .ThrowsAsync(dbUpdateException);
-
-            // when 
-            ValueTask<Guest> modifyGuestTask =
-                this.guestService.ModifyGuestAsync(someGuest);
-
-            GuestDependencyException actualGuestDependencyException =
-                await Assert.ThrowsAsync<GuestDependencyException>(() =>
-                    modifyGuestTask.AsTask());
-
-            // then
-            actualGuestDependencyException.Should()
-                .BeEquivalentTo(expectedGuestDependencyException);
-
-            this.storageBrokerMock.Verify(broker =>
-                broker.SelectGuestByIdAsync(someGuest.Id),
-                    Times.Once);
-
-            this.loggingBrokerMock.Verify(broker =>
-                broker.LogError(It.Is(SameExceptionAs(
-                    expectedGuestDependencyException))),
-                        Times.Once);
-
-            this.storageBrokerMock.VerifyNoOtherCalls();
-            this.loggingBrokerMock.VerifyNoOtherCalls();
-        }
-
-        [Fact]
-        public async Task ShouldThrowServiceExceptionOnModifyIfExceptionOccursAndLogItAsync()
-        {
-            // given
-            Guest someGuest = CreateRandomGuest();
+            Guid someGuestId = Guid.NewGuid();
+            Guid inputGuestId = someGuestId;
             var serviceException = new Exception();
 
             var failedGuestServiceException =
@@ -155,23 +119,23 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
                 new GuestServiceException(failedGuestServiceException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectGuestByIdAsync(someGuest.Id))
+                broker.SelectGuestByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(serviceException);
 
             // when
-            ValueTask<Guest> modifyGuestTask =
-                this.guestService.ModifyGuestAsync(someGuest);
+            ValueTask<Guest> removeGuestByIdTask =
+                this.guestService.RemoveGuestByIdAsync(inputGuestId);
 
             GuestServiceException actualGuestServiceException =
                 await Assert.ThrowsAsync<GuestServiceException>(() =>
-                    modifyGuestTask.AsTask());
+                    removeGuestByIdTask.AsTask());
 
             // then
             actualGuestServiceException.Should()
                 .BeEquivalentTo(expectedGuestServiceException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectGuestByIdAsync(someGuest.Id),
+                broker.SelectGuestByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
