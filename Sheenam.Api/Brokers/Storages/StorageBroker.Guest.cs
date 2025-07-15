@@ -17,12 +17,12 @@ namespace Sheenam.Api.Brokers.Storages
         {
             using var broker = new StorageBroker(this.configuration);
 
-            EntityEntry<Guest> guestEntitytry =
+            EntityEntry<Guest> guestEntityEntry =
                 await broker.Guests.AddAsync(guest);
 
             await broker.SaveChangesAsync();
 
-            return guestEntitytry.Entity;
+            return guestEntityEntry.Entity;
         }
 
         public IQueryable<Guest> SelectAllGuests()
@@ -47,6 +47,16 @@ namespace Sheenam.Api.Brokers.Storages
             await broker.SaveChangesAsync();
 
             return guest;
+        }
+
+        public async ValueTask<Guest> DeleteGuestAsync(Guest guest)
+        {
+            using var broker = new StorageBroker(this.configuration);
+
+            EntityEntry<Guest> guestEntity = broker.Guests.Remove(guest);
+            await broker.SaveChangesAsync();
+
+            return guestEntity.Entity;
         }
     }
 }
