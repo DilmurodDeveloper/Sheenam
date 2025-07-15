@@ -71,6 +71,8 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 Guest maybeGuest =
                       await this.storageBroker.SelectGuestByIdAsync(guestId);
 
+                ValidateStorageGuest(maybeGuest, guestId);
+
                 return await this.storageBroker.DeleteGuestAsync(maybeGuest);
             }
             catch (InvalidGuestException invalidGuestException)
@@ -82,7 +84,15 @@ namespace Sheenam.Api.Services.Foundations.Guests
 
                 throw guestValidationException;
             }
+            catch (NotFoundGuestException notFoundGuestException)
+            {
+                var guestValidationException =
+                    new GuestValidationException(notFoundGuestException);
 
+                this.loggingBroker.LogError(guestValidationException);
+
+                throw guestValidationException;
+            }
         }
     }
 }
