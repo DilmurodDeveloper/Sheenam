@@ -3,6 +3,7 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
@@ -105,6 +106,18 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 this.loggingBroker.LogError(guestDependencyValidationException);
 
                 throw guestDependencyValidationException;
+            }
+            catch (SqlException sqlException)
+            {
+                var failedGuestStorageException =
+                    new FailedGuestStorageException(sqlException);
+
+                var guestDependencyException =
+                    new GuestDependencyException(failedGuestStorageException);
+
+                this.loggingBroker.LogCritical(guestDependencyException);
+
+                throw guestDependencyException;
             }
         }
     }
