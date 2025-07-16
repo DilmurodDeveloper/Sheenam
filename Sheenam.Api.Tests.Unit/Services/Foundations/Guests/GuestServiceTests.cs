@@ -4,6 +4,7 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using Microsoft.Data.SqlClient;
 using Moq;
@@ -44,7 +45,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Guests
             new MnemonicString().GetValue();
 
         private static SqlException GetSqlError() =>
-            (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
+            (SqlException)RuntimeHelpers.GetUninitializedObject(typeof(SqlException));
 
         private IQueryable<Guest> CreateRandomGuests()
         {

@@ -109,8 +109,8 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.HomeRequests
                 broker.InsertHomeRequestAsync(It.IsAny<HomeRequest>()),
                     Times.Never);
 
-            this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
         }
     }
 }
