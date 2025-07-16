@@ -3,6 +3,7 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+using System.Linq.Expressions;
 using Moq;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
@@ -10,6 +11,7 @@ using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.HomeRequests;
 using Sheenam.Api.Services.Foundations.HomeRequests;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace Sheenam.Api.Tests.Unit.Services.Foundations.HomeRequests
 {
@@ -36,6 +38,9 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.HomeRequests
 
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: new DateTime()).GetValue();
+
+        private Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
+            actualException => actualException.SameExceptionAs(expectedException);
 
         private static Filler<HomeRequest> CreateHomeRequestFiller(DateTimeOffset date)
         {
