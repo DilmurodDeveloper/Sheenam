@@ -102,9 +102,46 @@ namespace Sheenam.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AdditionalInfo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Area")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("HostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsPetAllowed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsShared")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsVacant")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("NumberOfBathrooms")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberOfBedrooms")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Home");
+                    b.HasIndex("HostId");
+
+                    b.ToTable("Homes");
                 });
 
             modelBuilder.Entity("Sheenam.Api.Models.Foundations.Hosts.Host", b =>
@@ -143,13 +180,13 @@ namespace Sheenam.Api.Migrations
             modelBuilder.Entity("Sheenam.Api.Models.Foundations.HomeRequests.HomeRequest", b =>
                 {
                     b.HasOne("Sheenam.Api.Models.Foundations.Guests.Guest", "Guest")
-                        .WithMany()
+                        .WithMany("HomeRequests")
                         .HasForeignKey("GuestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Sheenam.Api.Models.Foundations.Homes.Home", "Home")
-                        .WithMany()
+                        .WithMany("HomeRequests")
                         .HasForeignKey("HomeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -157,6 +194,32 @@ namespace Sheenam.Api.Migrations
                     b.Navigation("Guest");
 
                     b.Navigation("Home");
+                });
+
+            modelBuilder.Entity("Sheenam.Api.Models.Foundations.Homes.Home", b =>
+                {
+                    b.HasOne("Sheenam.Api.Models.Foundations.Hosts.Host", "Host")
+                        .WithMany("Homes")
+                        .HasForeignKey("HostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Host");
+                });
+
+            modelBuilder.Entity("Sheenam.Api.Models.Foundations.Guests.Guest", b =>
+                {
+                    b.Navigation("HomeRequests");
+                });
+
+            modelBuilder.Entity("Sheenam.Api.Models.Foundations.Homes.Home", b =>
+                {
+                    b.Navigation("HomeRequests");
+                });
+
+            modelBuilder.Entity("Sheenam.Api.Models.Foundations.Hosts.Host", b =>
+                {
+                    b.Navigation("Homes");
                 });
 #pragma warning restore 612, 618
         }
