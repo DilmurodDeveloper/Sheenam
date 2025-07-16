@@ -23,7 +23,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.HomeRequests
         private readonly Mock<IStorageBroker> storageBrokerMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
-        
+
         public HomeRequestServiceTests()
         {
             this.storageBrokerMock = new Mock<IStorageBroker>();
@@ -56,7 +56,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.HomeRequests
 
             filler.Setup()
                 .OnType<DateTimeOffset>().Use(date);
-            
+
             return filler;
         }
     }

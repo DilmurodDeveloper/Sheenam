@@ -12,6 +12,6 @@ namespace Sheenam.Api.Models.Foundations.HomeRequests.Exceptions
         public HomeRequestDependencyValidationException(Xeption innerException)
             : base(message: "Home request dependency validation error occurred, fix the errors and try again.",
                   innerException)
-        {  }
+        { }
     }
 }
