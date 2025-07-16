@@ -7,10 +7,11 @@ using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.HomeRequests;
+using Sheenam.Api.Models.Foundations.HomeRequests.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.HomeRequests
 {
-    public class HomeRequestService : IHomeRequestService
+    public partial class HomeRequestService : IHomeRequestService
     {
         private readonly IStorageBroker storageBroker;
         private readonly IDateTimeBroker dateTimeBroker;
@@ -26,7 +27,23 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<HomeRequest> AddHomeRequestAsync(HomeRequest homeRequest) =>
-            await this.storageBroker.InsertHomeRequestAsync(homeRequest);
+        public async ValueTask<HomeRequest> AddHomeRequestAsync(HomeRequest homeRequest)
+        {
+            try
+            {
+                ValidateHomeRequestIsNotNull(homeRequest);
+
+                return await this.storageBroker.InsertHomeRequestAsync(homeRequest);
+            }
+            catch (NullHomeRequestException nullHomeRequestException)
+            {
+                var homeRequestValidationException =
+                    new HomeRequestValidationException(nullHomeRequestException);
+
+                this.loggingBroker.LogError(homeRequestValidationException);
+
+                throw homeRequestValidationException;
+            }
+        }
     }
 }
