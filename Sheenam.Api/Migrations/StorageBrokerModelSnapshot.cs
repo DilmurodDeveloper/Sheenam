@@ -141,7 +141,7 @@ namespace Sheenam.Api.Migrations
 
                     b.HasIndex("HostId");
 
-                    b.ToTable("Home");
+                    b.ToTable("Homes");
                 });
 
             modelBuilder.Entity("Sheenam.Api.Models.Foundations.Hosts.Host", b =>
@@ -180,7 +180,7 @@ namespace Sheenam.Api.Migrations
             modelBuilder.Entity("Sheenam.Api.Models.Foundations.HomeRequests.HomeRequest", b =>
                 {
                     b.HasOne("Sheenam.Api.Models.Foundations.Guests.Guest", "Guest")
-                        .WithMany()
+                        .WithMany("HomeRequests")
                         .HasForeignKey("GuestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -199,7 +199,7 @@ namespace Sheenam.Api.Migrations
             modelBuilder.Entity("Sheenam.Api.Models.Foundations.Homes.Home", b =>
                 {
                     b.HasOne("Sheenam.Api.Models.Foundations.Hosts.Host", "Host")
-                        .WithMany()
+                        .WithMany("Homes")
                         .HasForeignKey("HostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -207,9 +207,19 @@ namespace Sheenam.Api.Migrations
                     b.Navigation("Host");
                 });
 
+            modelBuilder.Entity("Sheenam.Api.Models.Foundations.Guests.Guest", b =>
+                {
+                    b.Navigation("HomeRequests");
+                });
+
             modelBuilder.Entity("Sheenam.Api.Models.Foundations.Homes.Home", b =>
                 {
                     b.Navigation("HomeRequests");
+                });
+
+            modelBuilder.Entity("Sheenam.Api.Models.Foundations.Hosts.Host", b =>
+                {
+                    b.Navigation("Homes");
                 });
 #pragma warning restore 612, 618
         }
