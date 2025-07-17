@@ -5,7 +5,7 @@
 
 namespace Sheenam.Api.Models.Foundations.Hosts
 {
-    public enum GenderType
+    public enum HostGenderType
     {
         Male,
         Female,
