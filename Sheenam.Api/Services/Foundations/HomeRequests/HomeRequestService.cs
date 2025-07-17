@@ -4,6 +4,7 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
@@ -101,6 +102,18 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
                     new HomeRequestDependencyException(failedHomeRequestStorageException);
 
                 this.loggingBroker.LogCritical(homeRequestDependencyException);
+
+                throw homeRequestDependencyException;
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedHomeRequestStorageException =
+                    new FailedHomeRequestStorageException(dbUpdateException);
+
+                var homeRequestDependencyException =
+                    new HomeRequestDependencyException(failedHomeRequestStorageException);
+
+                this.loggingBroker.LogError(homeRequestDependencyException);
 
                 throw homeRequestDependencyException;
             }
