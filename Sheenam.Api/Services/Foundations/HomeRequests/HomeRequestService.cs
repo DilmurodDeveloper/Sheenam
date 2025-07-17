@@ -105,6 +105,18 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
 
                 throw homeRequestDependencyException;
             }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedHomeRequestException =
+                    new LockedHomeRequestException(dbUpdateConcurrencyException);
+
+                var homeRequestDependencyValidationException =
+                    new HomeRequestDependencyValidationException(lockedHomeRequestException);
+
+                this.loggingBroker.LogError(homeRequestDependencyValidationException);
+
+                throw homeRequestDependencyValidationException;
+            }
             catch (DbUpdateException dbUpdateException)
             {
                 var failedHomeRequestStorageException =
