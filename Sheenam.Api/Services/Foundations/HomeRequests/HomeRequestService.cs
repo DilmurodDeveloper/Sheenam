@@ -33,5 +33,8 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
 
             return await this.storageBroker.InsertHomeRequestAsync(homeRequest);
         });
+
+        public IQueryable<HomeRequest> RetrieveAllHomeRequests() =>
+            TryCatch(() => this.storageBroker.SelectAllHomeRequests());
     }
 }
