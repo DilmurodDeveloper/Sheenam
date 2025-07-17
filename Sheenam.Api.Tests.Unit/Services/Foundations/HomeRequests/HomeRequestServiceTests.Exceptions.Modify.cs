@@ -26,7 +26,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.HomeRequests
                 new FailedHomeRequestStorageException(sqlException);
 
             var expectedHomeRequestServiceException =
-                new HomeRequestServiceException(failedHomeRequestStorageException);
+                new HomeRequestDependencyException(failedHomeRequestStorageException);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectHomeRequestByIdAsync(homeRequestId))
