@@ -3,12 +3,10 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.HomeRequests;
-using Sheenam.Api.Models.Foundations.HomeRequests.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.HomeRequests
 {
@@ -39,61 +37,17 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
         public IQueryable<HomeRequest> RetrieveAllHomeRequests() =>
             TryCatch(() => this.storageBroker.SelectAllHomeRequests());
 
-        public async ValueTask<HomeRequest> RetrieveHomeRequestByIdAsync(Guid homeRequestId)
+        public ValueTask<HomeRequest> RetrieveHomeRequestByIdAsync(Guid homeRequestId) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateHomeRequestId(homeRequestId);
+            ValidateHomeRequestId(homeRequestId);
 
-                HomeRequest maybeHomeRequest =
-                    await this.storageBroker.SelectHomeRequestByIdAsync(homeRequestId);
+            HomeRequest maybeHomeRequest =
+                await this.storageBroker.SelectHomeRequestByIdAsync(homeRequestId);
 
-                ValidateStorageHomeRequestIsNotNull(maybeHomeRequest, homeRequestId);
+            ValidateStorageHomeRequestIsNotNull(maybeHomeRequest, homeRequestId);
 
-                return maybeHomeRequest;
-            }
-            catch (InvalidHomeRequestException invalidHomeRequestException)
-            {
-                var homeRequestValidationException =
-                    new HomeRequestValidationException(invalidHomeRequestException);
-
-                this.loggingBroker.LogError(homeRequestValidationException);
-
-                throw homeRequestValidationException;
-            }
-            catch (NotFoundHomeRequestException notFoundHomeRequestException)
-            {
-                var homeRequestValidationException =
-                    new HomeRequestValidationException(notFoundHomeRequestException);
-
-                this.loggingBroker.LogError(homeRequestValidationException);
-
-                throw homeRequestValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedHomeRequestStorageException =
-                    new FailedHomeRequestStorageException(sqlException);
-
-                var homeRequestDependencyException =
-                    new HomeRequestDependencyException(failedHomeRequestStorageException);
-
-                this.loggingBroker.LogCritical(homeRequestDependencyException);
-
-                throw homeRequestDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedHomeRequestServiceException =
-                    new FailedHomeRequestServiceException(exception);
-
-                var homeRequestServiceException =
-                    new HomeRequestServiceException(failedHomeRequestServiceException);
-
-                this.loggingBroker.LogError(homeRequestServiceException);
-
-                throw homeRequestServiceException;
-            }
-        }
+            return maybeHomeRequest;
+        });
     }
 }
