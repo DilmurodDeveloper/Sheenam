@@ -66,12 +66,7 @@ namespace Sheenam.Api.Services.Foundations.Guests
                 var failedGuestStorageException =
                     new FailedGuestStorageException(dbUpdateException);
 
-                var guestDependencyException =
-                    new GuestDependencyException(failedGuestStorageException);
-
-                this.loggingBroker.LogError(guestDependencyException);
-
-                throw guestDependencyException;
+                throw CreateAndLogDependencyException(failedGuestStorageException);
             }
             catch (Exception exception)
             {
@@ -137,6 +132,14 @@ namespace Sheenam.Api.Services.Foundations.Guests
             this.loggingBroker.LogError(guestServiceException);
 
             return guestServiceException;
+        }
+
+        private GuestDependencyException CreateAndLogDependencyException(Xeption exception)
+        {
+            var guestDependencyException = new GuestDependencyException(exception);
+            this.loggingBroker.LogError(guestDependencyException);
+
+            return guestDependencyException;
         }
     }
 }
