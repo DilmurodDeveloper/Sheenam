@@ -3,6 +3,7 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
@@ -107,6 +108,18 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
                 this.loggingBroker.LogError(homeRequestDependencyValidationException);
 
                 throw homeRequestDependencyValidationException;
+            }
+            catch (SqlException sqlException)
+            {
+                var failedHomeRequestStorageException =
+                    new FailedHomeRequestStorageException(sqlException);
+
+                var homeRequestDependencyException =
+                    new HomeRequestDependencyException(failedHomeRequestStorageException);
+
+                this.loggingBroker.LogCritical(homeRequestDependencyException);
+
+                throw homeRequestDependencyException;
             }
         }
     }
