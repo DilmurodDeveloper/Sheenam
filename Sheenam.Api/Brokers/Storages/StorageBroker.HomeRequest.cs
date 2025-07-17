@@ -24,5 +24,13 @@ namespace Sheenam.Api.Brokers.Storages
 
             return homeRequestEntityEntry.Entity;
         }
+
+        public IQueryable<HomeRequest> SelectAllHomeRequests()
+        {
+            using var broker =
+                new StorageBroker(this.configuration);
+
+            return broker.HomeRequests.AsNoTracking();
+        }
     }
 }
