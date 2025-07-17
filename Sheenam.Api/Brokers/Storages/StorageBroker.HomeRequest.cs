@@ -48,5 +48,17 @@ namespace Sheenam.Api.Brokers.Storages
 
             return homeRequest;
         }
+
+        public async ValueTask<HomeRequest> DeleteHomeRequestAsync(HomeRequest homeRequest)
+        {
+            using var broker = new StorageBroker(this.configuration);
+
+            EntityEntry<HomeRequest> homeRequestEntityEntry =
+                broker.HomeRequests.Remove(homeRequest);
+
+            await broker.SaveChangesAsync();
+
+            return homeRequestEntityEntry.Entity;
+        }
     }
 }
