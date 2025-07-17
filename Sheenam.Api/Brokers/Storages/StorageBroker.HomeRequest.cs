@@ -32,5 +32,12 @@ namespace Sheenam.Api.Brokers.Storages
 
             return broker.HomeRequests.AsNoTracking();
         }
+
+        public async ValueTask<HomeRequest> SelectHomeRequestByIdAsync(Guid homeRequestId)
+        {
+            using var broker = new StorageBroker(this.configuration);
+
+            return await broker.HomeRequests.FindAsync(homeRequestId);
+        }
     }
 }
