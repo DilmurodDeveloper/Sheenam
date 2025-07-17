@@ -4,9 +4,11 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using Microsoft.OpenApi.Models;
+using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Services.Foundations.Guests;
+using Sheenam.Api.Services.Foundations.HomeRequests;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<StorageBroker>();
 builder.Services.AddTransient<IStorageBroker, StorageBroker>();
 builder.Services.AddTransient<ILoggingBroker, LoggingBroker>();
+builder.Services.AddTransient<IDateTimeBroker, DateTimeBroker>();
 builder.Services.AddTransient<IGuestService, GuestService>();
+builder.Services.AddTransient<IHomeRequestService, HomeRequestService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
