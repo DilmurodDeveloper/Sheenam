@@ -39,5 +39,14 @@ namespace Sheenam.Api.Brokers.Storages
 
             return await broker.HomeRequests.FindAsync(homeRequestId);
         }
+
+        public async ValueTask<HomeRequest> UpdateHomeRequestAsync(HomeRequest homeRequest)
+        {
+            using var broker = new StorageBroker(this.configuration);
+            broker.Entry(homeRequest).State = EntityState.Modified;
+            await broker.SaveChangesAsync();
+
+            return homeRequest;
+        }
     }
 }
