@@ -3,12 +3,10 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.HomeRequests;
-using Sheenam.Api.Models.Foundations.HomeRequests.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.HomeRequests
 {
@@ -36,36 +34,7 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
             return await this.storageBroker.InsertHomeRequestAsync(homeRequest);
         });
 
-        public IQueryable<HomeRequest> RetrieveAllHomeRequests()
-        {
-            try
-            {
-                return this.storageBroker.SelectAllHomeRequests();
-            }
-            catch (SqlException sqlException)
-            {
-                var failedHomeRequestStorageException =
-                    new FailedHomeRequestStorageException(sqlException);
-
-                var homeRequestDependencyException =
-                    new HomeRequestDependencyException(failedHomeRequestStorageException);
-
-                this.loggingBroker.LogCritical(homeRequestDependencyException);
-
-                throw homeRequestDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedHomeRequestServiceException =
-                    new FailedHomeRequestServiceException(exception);
-
-                var homeRequestServiceException =
-                    new HomeRequestServiceException(failedHomeRequestServiceException);
-
-                this.loggingBroker.LogError(homeRequestServiceException);
-
-                throw homeRequestServiceException;
-            }
-        }
+        public IQueryable<HomeRequest> RetrieveAllHomeRequests() =>
+            TryCatch(() => this.storageBroker.SelectAllHomeRequests());
     }
 }
