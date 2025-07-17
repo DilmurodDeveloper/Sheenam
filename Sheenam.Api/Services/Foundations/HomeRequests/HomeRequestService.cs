@@ -54,6 +54,18 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
 
                 throw homeRequestDependencyException;
             }
+            catch (Exception exception)
+            {
+                var failedHomeRequestServiceException =
+                    new FailedHomeRequestServiceException(exception);
+
+                var homeRequestServiceException =
+                    new HomeRequestServiceException(failedHomeRequestServiceException);
+
+                this.loggingBroker.LogError(homeRequestServiceException);
+
+                throw homeRequestServiceException;
+            }
         }
     }
 }
