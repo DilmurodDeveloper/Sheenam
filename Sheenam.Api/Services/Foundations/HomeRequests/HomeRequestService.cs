@@ -55,7 +55,7 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
         {
             try
             {
-                ValidateHomeRequestIsNotNull(homeRequest);
+                ValidateHomeRequestOnModify(homeRequest);
 
                 HomeRequest maybeHomeRequest =
                     await this.storageBroker.SelectHomeRequestByIdAsync(homeRequest.Id);
@@ -66,6 +66,15 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
             {
                 var homeRequestValidationException =
                     new HomeRequestValidationException(nullHomeRequestException);
+
+                this.loggingBroker.LogError(homeRequestValidationException);
+
+                throw homeRequestValidationException;
+            }
+            catch (InvalidHomeRequestException invalidHomeRequestException)
+            {
+                var homeRequestValidationException =
+                    new HomeRequestValidationException(invalidHomeRequestException);
 
                 this.loggingBroker.LogError(homeRequestValidationException);
 
