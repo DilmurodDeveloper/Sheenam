@@ -4,7 +4,6 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Sheenam.Api.Models.Foundations.HomeRequests;
 
 namespace Sheenam.Api.Brokers.Storages
@@ -13,52 +12,34 @@ namespace Sheenam.Api.Brokers.Storages
     {
         public DbSet<HomeRequest> HomeRequests { get; set; }
 
-        public async ValueTask<HomeRequest> InsertHomeRequestAsync(HomeRequest homeRequest)
-        {
-            using var broker = new StorageBroker(this.configuration);
-
-            EntityEntry<HomeRequest> homeRequestEntityEntry =
-                await broker.HomeRequests.AddAsync(homeRequest);
-
-            await broker.SaveChangesAsync();
-
-            return homeRequestEntityEntry.Entity;
-        }
+        public async ValueTask<HomeRequest> InsertHomeRequestAsync(HomeRequest homeRequest) =>
+            await InsertAsync(homeRequest);
 
         public IQueryable<HomeRequest> SelectAllHomeRequests()
         {
-            using var broker =
-                new StorageBroker(this.configuration);
+            var homeRequests = SelectAll<HomeRequest>()
+                .Include(homeRequest => homeRequest.Guest)
+                .Include(homeRequest => homeRequest.Home)
+                    .ThenInclude(home => home.Host);
 
-            return broker.HomeRequests.AsNoTracking();
+            return homeRequests;
         }
 
         public async ValueTask<HomeRequest> SelectHomeRequestByIdAsync(Guid homeRequestId)
         {
-            using var broker = new StorageBroker(this.configuration);
+            var homeRequestWithGuestAndHome = HomeRequests
+                .Include(homeRequest => homeRequest.Guest)
+                .Include(homeRequest => homeRequest.Home)
+                    .ThenInclude(home => home.Host)
+                .FirstOrDefault(homeRequest => homeRequest.Id == homeRequestId);
 
-            return await broker.HomeRequests.FindAsync(homeRequestId);
+            return await ValueTask.FromResult(homeRequestWithGuestAndHome);
         }
 
-        public async ValueTask<HomeRequest> UpdateHomeRequestAsync(HomeRequest homeRequest)
-        {
-            using var broker = new StorageBroker(this.configuration);
-            broker.Entry(homeRequest).State = EntityState.Modified;
-            await broker.SaveChangesAsync();
+        public async ValueTask<HomeRequest> UpdateHomeRequestAsync(HomeRequest homeRequest) =>
+            await UpdateAsync(homeRequest);
 
-            return homeRequest;
-        }
-
-        public async ValueTask<HomeRequest> DeleteHomeRequestAsync(HomeRequest homeRequest)
-        {
-            using var broker = new StorageBroker(this.configuration);
-
-            EntityEntry<HomeRequest> homeRequestEntityEntry =
-                broker.HomeRequests.Remove(homeRequest);
-
-            await broker.SaveChangesAsync();
-
-            return homeRequestEntityEntry.Entity;
-        }
+        public async ValueTask<HomeRequest> DeleteHomeRequestAsync(HomeRequest homeRequest) =>
+            await DeleteAsync(homeRequest);
     }
 }

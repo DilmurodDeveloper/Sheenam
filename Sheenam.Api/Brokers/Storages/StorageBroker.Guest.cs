@@ -4,7 +4,6 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Sheenam.Api.Models.Foundations.Guests;
 
 namespace Sheenam.Api.Brokers.Storages
@@ -13,50 +12,29 @@ namespace Sheenam.Api.Brokers.Storages
     {
         public DbSet<Guest> Guests { get; set; }
 
-        public async ValueTask<Guest> InsertGuestAsync(Guest guest)
-        {
-            using var broker = new StorageBroker(this.configuration);
-
-            EntityEntry<Guest> guestEntityEntry =
-                await broker.Guests.AddAsync(guest);
-
-            await broker.SaveChangesAsync();
-
-            return guestEntityEntry.Entity;
-        }
+        public async ValueTask<Guest> InsertGuestAsync(Guest guest) =>
+            await InsertAsync(guest);
 
         public IQueryable<Guest> SelectAllGuests()
         {
-            using var broker =
-                new StorageBroker(this.configuration);
+            var guests = SelectAll<Guest>().Include(guest => guest.HomeRequests);
 
-            return broker.Guests.AsNoTracking();
+            return guests;
         }
 
         public async ValueTask<Guest> SelectGuestByIdAsync(Guid guestId)
         {
-            using var broker = new StorageBroker(this.configuration);
+            var guestWithHomeRequests = Guests
+                .Include(guest => guest.HomeRequests)
+                .FirstOrDefault(guest => guest.Id == guestId);
 
-            return await broker.Guests.FindAsync(guestId);
+            return await ValueTask.FromResult(guestWithHomeRequests);
         }
 
-        public async ValueTask<Guest> UpdateGuestAsync(Guest guest)
-        {
-            using var broker = new StorageBroker(this.configuration);
-            broker.Entry(guest).State = EntityState.Modified;
-            await broker.SaveChangesAsync();
+        public async ValueTask<Guest> UpdateGuestAsync(Guest guest) =>
+            await UpdateAsync(guest);
 
-            return guest;
-        }
-
-        public async ValueTask<Guest> DeleteGuestAsync(Guest guest)
-        {
-            using var broker = new StorageBroker(this.configuration);
-
-            EntityEntry<Guest> guestEntity = broker.Guests.Remove(guest);
-            await broker.SaveChangesAsync();
-
-            return guestEntity.Entity;
-        }
+        public async ValueTask<Guest> DeleteGuestAsync(Guest guest) =>
+            await DeleteAsync(guest);
     }
 }
