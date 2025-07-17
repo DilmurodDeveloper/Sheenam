@@ -36,6 +36,16 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
             }
         }
 
+        private static void ValidateStorageHomeRequestIsNotNull(
+            HomeRequest maybeHomeRequest,
+            Guid homeRequestId)
+        {
+            if (maybeHomeRequest is null)
+            {
+                throw new NotFoundHomeRequestException(homeRequestId);
+            }
+        }
+
         private static dynamic IsInvalid(Guid Id, string fieldName) => new
         {
             Condition = Id == Guid.Empty,
