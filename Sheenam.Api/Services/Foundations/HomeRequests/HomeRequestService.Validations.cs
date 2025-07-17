@@ -43,6 +43,21 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
                 (Rule: IsInvalid(homeRequest.UpdatedDate), Parameter: nameof(HomeRequest.UpdatedDate)));
         }
 
+        private static void ValidateAgainstStorageHomeRequestOnModify(HomeRequest homeRequest, HomeRequest maybeHomeRequest)
+        {
+            ValidateStorageHomeRequestIsNotNull(maybeHomeRequest, homeRequest.Id);
+
+            Validate(
+                (Rule: IsInvalid(homeRequest.Id, "Id"), Parameter: nameof(HomeRequest.Id)),
+                (Rule: IsInvalid(homeRequest.GuestId, "Guest Id"), Parameter: nameof(HomeRequest.GuestId)),
+                (Rule: IsInvalid(homeRequest.HomeId, "Home Id"), Parameter: nameof(HomeRequest.HomeId)),
+                (Rule: IsInvalid(homeRequest.Message), Parameter: nameof(HomeRequest.Message)),
+                (Rule: IsInvalid(homeRequest.StartDate), Parameter: nameof(HomeRequest.StartDate)),
+                (Rule: IsInvalid(homeRequest.EndDate), Parameter: nameof(HomeRequest.EndDate)),
+                (Rule: IsInvalid(homeRequest.CreatedDate), Parameter: nameof(HomeRequest.CreatedDate)),
+                (Rule: IsInvalid(homeRequest.UpdatedDate), Parameter: nameof(HomeRequest.UpdatedDate)));
+        }
+
         private static void ValidateHomeRequestIsNotNull(HomeRequest homeRequest)
         {
             if (homeRequest is null)
