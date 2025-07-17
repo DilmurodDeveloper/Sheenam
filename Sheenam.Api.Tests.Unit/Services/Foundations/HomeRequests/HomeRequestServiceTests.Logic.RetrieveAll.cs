@@ -18,7 +18,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.HomeRequests
             IQueryable<HomeRequest> randomHomeRequests = CreateRandomHomeRequests();
             IQueryable<HomeRequest> storageHomeRequests = randomHomeRequests;
             IQueryable<HomeRequest> expectedHomeRequests = storageHomeRequests;
-            
+
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectAllHomeRequests())
                     .Returns(storageHomeRequests);
