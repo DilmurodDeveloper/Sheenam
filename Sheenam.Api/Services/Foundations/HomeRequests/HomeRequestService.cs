@@ -3,10 +3,13 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.HomeRequests;
+using Sheenam.Api.Models.Foundations.HomeRequests.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.HomeRequests
 {
@@ -49,5 +52,83 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
 
             return maybeHomeRequest;
         });
+
+        public async ValueTask<HomeRequest> ModifyHomeRequestAsync(HomeRequest homeRequest)
+        {
+            try
+            {
+                ValidateHomeRequestOnModify(homeRequest);
+
+                HomeRequest maybeHomeRequest =
+                    await this.storageBroker.SelectHomeRequestByIdAsync(homeRequest.Id);
+
+                ValidateAgainstStorageHomeRequestOnModify(homeRequest, maybeHomeRequest);
+
+                return await this.storageBroker.UpdateHomeRequestAsync(homeRequest);
+            }
+            catch (NullHomeRequestException nullHomeRequestException)
+            {
+                var homeRequestValidationException =
+                    new HomeRequestValidationException(nullHomeRequestException);
+
+                this.loggingBroker.LogError(homeRequestValidationException);
+
+                throw homeRequestValidationException;
+            }
+            catch (InvalidHomeRequestException invalidHomeRequestException)
+            {
+                var homeRequestValidationException =
+                    new HomeRequestValidationException(invalidHomeRequestException);
+
+                this.loggingBroker.LogError(homeRequestValidationException);
+
+                throw homeRequestValidationException;
+            }
+            catch (NotFoundHomeRequestException notFoundHomeRequestException)
+            {
+                var homeRequestValidationException =
+                    new HomeRequestValidationException(notFoundHomeRequestException);
+
+                this.loggingBroker.LogError(homeRequestValidationException);
+
+                throw homeRequestValidationException;
+            }
+            catch (SqlException sqlException)
+            {
+                var failedHomeRequestStorageException =
+                    new FailedHomeRequestStorageException(sqlException);
+
+                var homeRequestDependencyException =
+                    new HomeRequestDependencyException(failedHomeRequestStorageException);
+
+                this.loggingBroker.LogCritical(homeRequestDependencyException);
+
+                throw homeRequestDependencyException;
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedHomeRequestException =
+                    new LockedHomeRequestException(dbUpdateConcurrencyException);
+
+                var homeRequestDependencyValidationException =
+                    new HomeRequestDependencyValidationException(lockedHomeRequestException);
+
+                this.loggingBroker.LogError(homeRequestDependencyValidationException);
+
+                throw homeRequestDependencyValidationException;
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedHomeRequestStorageException =
+                    new FailedHomeRequestStorageException(dbUpdateException);
+
+                var homeRequestDependencyException =
+                    new HomeRequestDependencyException(failedHomeRequestStorageException);
+
+                this.loggingBroker.LogError(homeRequestDependencyException);
+
+                throw homeRequestDependencyException;
+            }
+        }
     }
 }
