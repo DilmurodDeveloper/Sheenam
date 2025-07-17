@@ -25,11 +25,24 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
                 (Rule: IsInvalid(homeRequest.UpdatedDate), Parameter: nameof(HomeRequest.UpdatedDate)));
         }
 
+        private static void ValidateHomeRequestId(Guid homeRequestId) =>
+            Validate((Rule: IsInvalid(homeRequestId, "Id"), Parameter: nameof(HomeRequest.Id)));
+
         private static void ValidateHomeRequestIsNotNull(HomeRequest homeRequest)
         {
             if (homeRequest is null)
             {
                 throw new NullHomeRequestException();
+            }
+        }
+
+        private static void ValidateStorageHomeRequestIsNotNull(
+            HomeRequest maybeHomeRequest,
+            Guid homeRequestId)
+        {
+            if (maybeHomeRequest is null)
+            {
+                throw new NotFoundHomeRequestException(homeRequestId);
             }
         }
 
