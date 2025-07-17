@@ -7,6 +7,7 @@ using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.HomeRequests;
+using Sheenam.Api.Models.Foundations.HomeRequests.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.HomeRequests
 {
@@ -37,7 +38,26 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
         public IQueryable<HomeRequest> RetrieveAllHomeRequests() =>
             TryCatch(() => this.storageBroker.SelectAllHomeRequests());
 
-        public async ValueTask<HomeRequest> RetrieveHomeRequestByIdAsync(Guid homeRequestId) =>
-            await this.storageBroker.SelectHomeRequestByIdAsync(homeRequestId);
+        public async ValueTask<HomeRequest> RetrieveHomeRequestByIdAsync(Guid homeRequestId)
+        {
+            try
+            {
+                ValidateHomeRequestId(homeRequestId);
+
+                HomeRequest maybeHomeRequest =
+                    await this.storageBroker.SelectHomeRequestByIdAsync(homeRequestId);
+
+                return maybeHomeRequest;
+            }
+            catch (InvalidHomeRequestException invalidHomeRequestException)
+            {
+                var homeRequestValidationException =
+                    new HomeRequestValidationException(invalidHomeRequestException);
+
+                this.loggingBroker.LogError(homeRequestValidationException);
+
+                throw homeRequestValidationException;
+            }
+        }
     }
 }
