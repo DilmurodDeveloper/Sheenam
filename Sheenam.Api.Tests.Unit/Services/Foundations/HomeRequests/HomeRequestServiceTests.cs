@@ -47,6 +47,15 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.HomeRequests
         private static SqlException GetSqlError() =>
             (SqlException)RuntimeHelpers.GetUninitializedObject(typeof(SqlException));
 
+        private static int GetRandomNumber() =>
+            new IntRange(2, 9).GetValue();
+
+        private IQueryable<HomeRequest> CreateRandomHomeRequests()
+        {
+            return CreateHomeRequestFiller(date: GetRandomDateTimeOffset())
+                .Create(count: GetRandomNumber()).AsQueryable();
+        }
+
         private Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
 
