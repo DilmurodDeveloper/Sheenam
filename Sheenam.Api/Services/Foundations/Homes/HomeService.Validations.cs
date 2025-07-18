@@ -75,6 +75,9 @@ namespace Sheenam.Api.Services.Foundations.Homes
             Message = "Type is required"
         };
 
+        private static void ValidateHomeId(Guid homeId, string fieldName) =>
+            Validate((Rule: IsInvalid(homeId, "Id"), Parameter: nameof(Home.Id)));
+
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidHomeException = new InvalidHomeException();
