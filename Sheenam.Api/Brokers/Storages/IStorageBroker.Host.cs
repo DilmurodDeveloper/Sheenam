@@ -3,16 +3,12 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.EntityFrameworkCore;
 using Host = Sheenam.Api.Models.Foundations.Hosts.Host;
 
 namespace Sheenam.Api.Brokers.Storages
 {
-    public partial class StorageBroker
+    public partial interface IStorageBroker
     {
-        public DbSet<Host> Hosts { get; set; }
-
-        public async ValueTask<Host> InsertHostAsync(Host host) =>
-            await InsertAsync(host);
+        ValueTask<Host> InsertHostAsync(Host host);
     }
 }
