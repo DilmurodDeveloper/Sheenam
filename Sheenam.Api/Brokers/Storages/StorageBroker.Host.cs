@@ -17,5 +17,14 @@ namespace Sheenam.Api.Brokers.Storages
 
         public IQueryable<Host> SelectAllHosts() =>
             SelectAll<Host>().Include(host => host.Homes);
+
+        public async ValueTask<Host> SelectHostByIdAsync(Guid hostId)
+        {
+            var hostWithHomes = Hosts
+                .Include(host => host.Homes)
+                .FirstOrDefault(host => host.Id == hostId);
+
+            return await ValueTask.FromResult(hostWithHomes);
+        }
     }
 }
