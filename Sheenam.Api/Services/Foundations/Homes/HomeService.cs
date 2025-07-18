@@ -3,6 +3,7 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
@@ -91,6 +92,18 @@ namespace Sheenam.Api.Services.Foundations.Homes
                 this.loggingBroker.LogError(homeValidationException);
 
                 throw homeValidationException;
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedHomeException =
+                    new LockedHomeException(dbUpdateConcurrencyException);
+
+                var homeDependencyValidationException =
+                    new HomeDependencyValidationException(lockedHomeException);
+
+                this.loggingBroker.LogError(homeDependencyValidationException);
+
+                throw homeDependencyValidationException;
             }
         }
     }
