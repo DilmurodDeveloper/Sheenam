@@ -52,7 +52,7 @@ namespace Sheenam.Api.Services.Foundations.Homes
         {
             try
             {
-                ValidateHomeIsNull(home);
+                ValidateHomeOnModify(home);
 
                 Home maybeHome =
                 await this.storageBroker.SelectHomeByIdAsync(home.Id);
@@ -63,6 +63,15 @@ namespace Sheenam.Api.Services.Foundations.Homes
             {
                 var homeValidationException =
                     new HomeValidationException(nullHomeException);
+
+                this.loggingBroker.LogError(homeValidationException);
+
+                throw homeValidationException;
+            }
+            catch (InvalidHomeException invalidHomeException)
+            {
+                var homeValidationException =
+                    new HomeValidationException(invalidHomeException);
 
                 this.loggingBroker.LogError(homeValidationException);
 
