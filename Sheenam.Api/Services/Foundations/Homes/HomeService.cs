@@ -3,13 +3,10 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Homes;
-using Sheenam.Api.Models.Foundations.Homes.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.Homes
 {
@@ -63,73 +60,17 @@ namespace Sheenam.Api.Services.Foundations.Homes
             return await this.storageBroker.UpdateHomeAsync(home);
         });
 
-        public async ValueTask<Home> RemoveHomeByIdAsync(Guid homeId)
+        public ValueTask<Home> RemoveHomeByIdAsync(Guid homeId) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateHomeId(homeId, "Id");
+            ValidateHomeId(homeId, "Id");
 
-                Home maybeHome =
-                    await this.storageBroker.SelectHomeByIdAsync(homeId);
+            Home maybeHome =
+                await this.storageBroker.SelectHomeByIdAsync(homeId);
 
-                ValidateStorageHome(maybeHome, homeId);
+            ValidateStorageHome(maybeHome, homeId);
 
-                return await this.storageBroker.DeleteHomeAsync(maybeHome);
-            }
-            catch (InvalidHomeException invalidHomeException)
-            {
-                var homeValidationException =
-                    new HomeValidationException(invalidHomeException);
-
-                this.loggingBroker.LogError(homeValidationException);
-
-                throw homeValidationException;
-            }
-            catch (NotFoundHomeException notFoundHomeException)
-            {
-                var homeValidationException =
-                    new HomeValidationException(notFoundHomeException);
-
-                this.loggingBroker.LogError(homeValidationException);
-
-                throw homeValidationException;
-            }
-            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
-            {
-                var lockedHomeException =
-                    new LockedHomeException(dbUpdateConcurrencyException);
-
-                var homeDependencyValidationException =
-                    new HomeDependencyValidationException(lockedHomeException);
-
-                this.loggingBroker.LogError(homeDependencyValidationException);
-
-                throw homeDependencyValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedHomeStorageException =
-                    new FailedHomeStorageException(sqlException);
-
-                var homeDependencyException =
-                    new HomeDependencyException(failedHomeStorageException);
-
-                this.loggingBroker.LogCritical(homeDependencyException);
-
-                throw homeDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedHomeServiceException =
-                    new FailedHomeServiceException(exception);
-
-                var homeServiceException =
-                    new HomeServiceException(failedHomeServiceException);
-
-                this.loggingBroker.LogError(homeServiceException);
-
-                throw homeServiceException;
-            }
-        }
+            return await this.storageBroker.DeleteHomeAsync(maybeHome);
+        });
     }
 }
