@@ -3,13 +3,10 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using EFxceptions.Models.Exceptions;
-using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Homes;
-using Sheenam.Api.Models.Foundations.Homes.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.Homes
 {
@@ -29,68 +26,12 @@ namespace Sheenam.Api.Services.Foundations.Homes
             this.dateTimeBroker = dateTimeBroker;
         }
 
-        public async ValueTask<Home> AddHomeAsync(Home home)
+        public ValueTask<Home> AddHomeAsync(Home home) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateHomeOnAdd(home);
+            ValidateHomeOnAdd(home);
 
-                return await this.storageBroker.InsertHomeAsync(home);
-            }
-            catch (NullHomeException nullHomeException)
-            {
-                var homeValidationException =
-                    new HomeValidationException(nullHomeException);
-
-                this.loggingBroker.LogError(homeValidationException);
-
-                throw homeValidationException;
-            }
-            catch (InvalidHomeException invalidHomeException)
-            {
-                var homeValidationException =
-                    new HomeValidationException(invalidHomeException);
-
-                this.loggingBroker.LogError(homeValidationException);
-
-                throw homeValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedHomeStorageException =
-                    new FailedHomeStorageException(sqlException);
-
-                var homeDependencyException =
-                    new HomeDependencyException(failedHomeStorageException);
-
-                this.loggingBroker.LogCritical(homeDependencyException);
-
-                throw homeDependencyException;
-            }
-            catch (DuplicateKeyException duplicateKeyException)
-            {
-                var alreadyExistHomeException =
-                    new AlreadyExistHomeException(duplicateKeyException);
-
-                var homeDependencyValidationException =
-                    new HomeDependencyValidationException(alreadyExistHomeException);
-
-                this.loggingBroker.LogError(homeDependencyValidationException);
-
-                throw homeDependencyValidationException;
-            }
-            catch (Exception exception)
-            {
-                var failedHomeServiceException =
-                    new FailedHomeServiceException(exception);
-
-                var homeServiceException =
-                    new HomeServiceException(failedHomeServiceException);
-
-                this.loggingBroker.LogError(homeServiceException);
-
-                throw homeServiceException;
-            }
-        }
+            return await this.storageBroker.InsertHomeAsync(home);
+        });
     }
 }
