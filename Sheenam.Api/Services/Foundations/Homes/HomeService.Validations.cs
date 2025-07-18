@@ -48,7 +48,20 @@ namespace Sheenam.Api.Services.Foundations.Homes
                     Parameter: nameof(Home.NumberOfBathrooms)),
 
                 (Rule: IsInvalid(home.Area, "Area (square meters)"), Parameter: nameof(Home.Area)),
-                (Rule: IsInvalid(home.Price, "Price"), Parameter: nameof(Home.Price)));
+                (Rule: IsInvalid(home.Price, "Price"), Parameter: nameof(Home.Price)),
+                (Rule: IsInvalid(home.Type), Parameter: nameof(Home.Type)));
+        }
+
+        private static void ValidateAgainstStorageHomeOnModify(Home inputHome, Home storageHome)
+        {
+            ValidateStorageHome(storageHome, inputHome.Id);
+
+            Validate(
+                (Rule: IsNotSame(
+                    firstGuid: inputHome.Id,
+                    secondGuid: storageHome.Id,
+                    secondFieldName: nameof(Home.Id)),
+                    Parameter: nameof(Home.Id)));
         }
 
         private static void ValidateHomeIsNull(Home home)
@@ -97,6 +110,15 @@ namespace Sheenam.Api.Services.Foundations.Homes
 
         private static void ValidateHomeId(Guid homeId, string fieldName) =>
             Validate((Rule: IsInvalid(homeId, "Id"), Parameter: nameof(Home.Id)));
+
+        private static dynamic IsNotSame(
+            Guid firstGuid,
+            Guid secondGuid,
+            string secondFieldName) => new
+            {
+                Condition = firstGuid != secondGuid,
+                Message = $"Value is not the same as {secondFieldName}"
+            };
 
         private static void ValidateStorageHome(Home maybeHome, Guid homeId)
         {
