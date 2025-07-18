@@ -3,16 +3,12 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Models.Foundations.Homes;
 
 namespace Sheenam.Api.Brokers.Storages
 {
-    public partial class StorageBroker
+    public partial interface IStorageBroker
     {
-        public DbSet<Home> Homes { get; set; }
-
-        public async ValueTask<Home> InsertHomeAsync(Home home) =>
-            await InsertAsync(home);
+        ValueTask<Home> InsertHomeAsync(Home home);
     }
 }
