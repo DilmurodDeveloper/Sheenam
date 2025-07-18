@@ -26,7 +26,7 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             this.dateTimeBroker = dateTimeBroker;
         }
 
-        public ValueTask<Host> AddHostAsync(Host host) =>
-            throw new NotImplementedException();
+        public async ValueTask<Host> AddHostAsync(Host host) =>
+            await this.storageBroker.InsertHostAsync(host);
     }
 }
