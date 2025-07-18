@@ -33,5 +33,8 @@ namespace Sheenam.Api.Services.Foundations.Homes
 
             return await this.storageBroker.InsertHomeAsync(home);
         });
+
+        IQueryable<Home> IHomeService.RetrieveAllHomes() =>
+            throw new NotImplementedException();
     }
 }

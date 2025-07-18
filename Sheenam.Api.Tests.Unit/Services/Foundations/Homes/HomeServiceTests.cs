@@ -41,6 +41,12 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: new DateTime()).GetValue();
 
+        private IQueryable<Home> CreateRandomHomes()
+        {
+            return CreateHomeFiller(GetRandomDateTimeOffset())
+                .Create(count: GetRandomNumber()).AsQueryable();
+        }
+
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();
 
