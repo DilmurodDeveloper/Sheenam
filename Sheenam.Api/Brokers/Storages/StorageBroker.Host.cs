@@ -26,5 +26,8 @@ namespace Sheenam.Api.Brokers.Storages
 
             return await ValueTask.FromResult(hostWithHomes);
         }
+
+        public async ValueTask<Host> UpdateHostAsync(Host host) =>
+            await UpdateAsync(host);
     }
 }
