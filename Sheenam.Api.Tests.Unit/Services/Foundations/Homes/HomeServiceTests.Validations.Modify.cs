@@ -123,5 +123,53 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnModifyIfHomeDoesNotExistAndLogItAsync()
+        {
+            // given
+            Home randomHome = CreateRandomHome();
+            Home nonExistenHome = randomHome;
+            Home nullHome = null;
+
+            var notFoundHomeException =
+                new NotFoundHomeException(nonExistenHome.Id);
+
+            var expectedHomeValidationException =
+                new HomeValidationException(notFoundHomeException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectHomeByIdAsync(nonExistenHome.Id))
+                    .ReturnsAsync(nullHome);
+
+            // when
+            ValueTask<Home> modifyHomeTask =
+                this.homeService.ModifyHomeAsync(nonExistenHome);
+
+            HomeValidationException actualHomeValidationException =
+                await Assert.ThrowsAsync<HomeValidationException>(
+                    modifyHomeTask.AsTask);
+
+            // then
+            actualHomeValidationException.Should()
+                .BeEquivalentTo(expectedHomeValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectHomeByIdAsync(nonExistenHome.Id),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedHomeValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.UpdateHomeAsync(nonExistenHome),
+                    Times.Never);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
