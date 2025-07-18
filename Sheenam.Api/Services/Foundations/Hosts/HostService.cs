@@ -31,7 +31,7 @@ namespace Sheenam.Api.Services.Foundations.Hosts
         {
             try
             {
-                ValidateHostNotNull(host);
+                ValidateHostOnAdd(host);
 
                 return await this.storageBroker.InsertHostAsync(host);
             }
@@ -39,6 +39,15 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             {
                 var hostValidationException =
                     new HostValidationException(nullHostException);
+
+                this.loggingBroker.LogError(hostValidationException);
+
+                throw hostValidationException;
+            }
+            catch (InvalidHostException invalidHostException)
+            {
+                var hostValidationException =
+                    new HostValidationException(invalidHostException);
 
                 this.loggingBroker.LogError(hostValidationException);
 
