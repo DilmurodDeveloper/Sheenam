@@ -4,6 +4,8 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using Microsoft.Data.SqlClient;
 using Moq;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
@@ -54,6 +56,9 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
             return (T)(object)randomNumber;
         }
 
+        private static SqlException GetSqlError() =>
+            (SqlException)RuntimeHelpers.GetUninitializedObject(typeof(SqlException));
+
         private Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
 
@@ -67,7 +72,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
                 .OnType<double>().Use(() => randomPositiveNumber)
                 .OnType<decimal>().Use(randomPositiveNumber)
                 .OnType<DateTimeOffset>().Use(date);
-            
+
             return filler;
         }
     }
