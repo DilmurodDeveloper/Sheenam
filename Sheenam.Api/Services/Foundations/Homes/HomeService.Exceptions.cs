@@ -5,6 +5,7 @@
 
 using EFxceptions.Models.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Models.Foundations.Homes;
 using Sheenam.Api.Models.Foundations.Homes.Exceptions;
 using Xeptions;
@@ -47,6 +48,20 @@ namespace Sheenam.Api.Services.Foundations.Homes
                     new AlreadyExistHomeException(duplicateKeyException);
 
                 throw CreateAndLogDependencyValidationException(alreadyExistHomeException);
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedHomeException =
+                new LockedHomeException(dbUpdateConcurrencyException);
+
+                throw CreateAndLogDependencyValidationException(lockedHomeException);
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedHomeStorageException =
+                    new FailedHomeStorageException(dbUpdateException);
+
+                throw CreateAndLogDependencyException(failedHomeStorageException);
             }
             catch (Exception exception)
             {
@@ -112,6 +127,14 @@ namespace Sheenam.Api.Services.Foundations.Homes
             this.loggingBroker.LogError(homeServiceException);
 
             return homeServiceException;
+        }
+
+        private HomeDependencyException CreateAndLogDependencyException(Xeption exception)
+        {
+            var homeDependencyException = new HomeDependencyException(exception);
+            this.loggingBroker.LogError(homeDependencyException);
+
+            return homeDependencyException;
         }
     }
 }

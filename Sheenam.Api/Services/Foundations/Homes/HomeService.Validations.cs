@@ -31,6 +31,39 @@ namespace Sheenam.Api.Services.Foundations.Homes
                 (Rule: IsInvalid(home.Type), Parameter: nameof(Home.Type)));
         }
 
+        private static void ValidateHomeOnModify(Home home)
+        {
+            ValidateHomeIsNull(home);
+
+            Validate(
+                (Rule: IsInvalid(home.Id, "Id"), Parameter: nameof(Home.Id)),
+                (Rule: IsInvalid(home.HostId, "Host Id"), Parameter: nameof(Home.HostId)),
+                (Rule: IsInvalid(home.Address), Parameter: nameof(Home.Address)),
+                (Rule: IsInvalid(home.AdditionalInfo), Parameter: nameof(Home.AdditionalInfo)),
+
+                (Rule: IsInvalid(home.NumberOfBedrooms, "Number of bedrooms"),
+                    Parameter: nameof(Home.NumberOfBedrooms)),
+
+                (Rule: IsInvalid(home.NumberOfBathrooms, "Number of bathrooms"),
+                    Parameter: nameof(Home.NumberOfBathrooms)),
+
+                (Rule: IsInvalid(home.Area, "Area (square meters)"), Parameter: nameof(Home.Area)),
+                (Rule: IsInvalid(home.Price, "Price"), Parameter: nameof(Home.Price)),
+                (Rule: IsInvalid(home.Type), Parameter: nameof(Home.Type)));
+        }
+
+        private static void ValidateAgainstStorageHomeOnModify(Home inputHome, Home storageHome)
+        {
+            ValidateStorageHome(storageHome, inputHome.Id);
+
+            Validate(
+                (Rule: IsNotSame(
+                    firstGuid: inputHome.Id,
+                    secondGuid: storageHome.Id,
+                    secondFieldName: nameof(Home.Id)),
+                    Parameter: nameof(Home.Id)));
+        }
+
         private static void ValidateHomeIsNull(Home home)
         {
             if (home is null)
@@ -77,6 +110,15 @@ namespace Sheenam.Api.Services.Foundations.Homes
 
         private static void ValidateHomeId(Guid homeId, string fieldName) =>
             Validate((Rule: IsInvalid(homeId, "Id"), Parameter: nameof(Home.Id)));
+
+        private static dynamic IsNotSame(
+            Guid firstGuid,
+            Guid secondGuid,
+            string secondFieldName) => new
+            {
+                Condition = firstGuid != secondGuid,
+                Message = $"Value is not the same as {secondFieldName}"
+            };
 
         private static void ValidateStorageHome(Home maybeHome, Guid homeId)
         {
