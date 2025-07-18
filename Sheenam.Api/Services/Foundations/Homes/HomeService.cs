@@ -44,12 +44,25 @@ namespace Sheenam.Api.Services.Foundations.Homes
             {
                 ValidateHomeId(homeId, "Id");
 
-                return await this.storageBroker.SelectHomeByIdAsync(homeId);
+                Home maybeHome = await this.storageBroker.SelectHomeByIdAsync(homeId);
+
+                ValidateStorageHome(maybeHome, homeId);
+
+                return maybeHome;
             }
             catch (InvalidHomeException invalidHomeException)
             {
                 var homeValidationException =
                     new HomeValidationException(invalidHomeException);
+
+                this.loggingBroker.LogError(homeValidationException);
+
+                throw homeValidationException;
+            }
+            catch (NotFoundHomeException notFoundHomeException)
+            {
+                var homeValidationException =
+                    new HomeValidationException(notFoundHomeException);
 
                 this.loggingBroker.LogError(homeValidationException);
 
