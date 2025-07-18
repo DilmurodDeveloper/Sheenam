@@ -39,56 +39,14 @@ namespace Sheenam.Api.Services.Foundations.Homes
         IQueryable<Home> IHomeService.RetrieveAllHomes() =>
             TryCatch(() => this.storageBroker.SelectAllHomes());
 
-        public async ValueTask<Home> RetrieveHomeByIdAsync(Guid homeId)
+        public ValueTask<Home> RetrieveHomeByIdAsync(Guid homeId) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateHomeId(homeId, "Id");
+            ValidateHomeId(homeId, "Id");
+            Home maybeHome = await this.storageBroker.SelectHomeByIdAsync(homeId);
+            ValidateStorageHome(maybeHome, homeId);
 
-                Home maybeHome = await this.storageBroker.SelectHomeByIdAsync(homeId);
-
-                ValidateStorageHome(maybeHome, homeId);
-
-                return maybeHome;
-            }
-            catch (InvalidHomeException invalidHomeException)
-            {
-                var homeValidationException =
-                    new HomeValidationException(invalidHomeException);
-
-                this.loggingBroker.LogError(homeValidationException);
-
-                throw homeValidationException;
-            }
-            catch (NotFoundHomeException notFoundHomeException)
-            {
-                var homeValidationException =
-                    new HomeValidationException(notFoundHomeException);
-
-                this.loggingBroker.LogError(homeValidationException);
-
-                throw homeValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedHomeStorageException =
-                    new FailedHomeStorageException(sqlException);
-
-                var homeDependencyException =
-                    new HomeDependencyException(failedHomeStorageException);
-
-                this.loggingBroker.LogCritical(homeDependencyException);
-
-                throw homeDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedHomeServiceException = new FailedHomeServiceException(exception);
-                var homeServiceException = new HomeServiceException(failedHomeServiceException);
-                this.loggingBroker.LogError(homeServiceException);
-
-                throw homeServiceException;
-            }
-        }
+            return maybeHome;
+        });
     }
 }
