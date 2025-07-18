@@ -3,12 +3,10 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Models.Foundations.Homes;
-using Sheenam.Api.Models.Foundations.Homes.Exceptions;
 
 namespace Sheenam.Api.Services.Foundations.Homes
 {
@@ -48,5 +46,8 @@ namespace Sheenam.Api.Services.Foundations.Homes
 
             return maybeHome;
         });
+
+        public ValueTask<Home> ModifyHomeAsync(Home home) =>
+            throw new NotImplementedException();
     }
 }
