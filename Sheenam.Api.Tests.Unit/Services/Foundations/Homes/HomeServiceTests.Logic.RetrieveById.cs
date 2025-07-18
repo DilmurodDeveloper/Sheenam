@@ -4,6 +4,7 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using FluentAssertions;
+using Force.DeepCloner;
 using Moq;
 using Sheenam.Api.Models.Foundations.Homes;
 
@@ -19,7 +20,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
             Guid inputHomeId = randomHomeId;
             Home randomHome = CreateRandomHome();
             Home storageHome = randomHome;
-            Home expectedHome = storageHome;
+            Home expectedHome = storageHome.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectHomeByIdAsync(inputHomeId))
