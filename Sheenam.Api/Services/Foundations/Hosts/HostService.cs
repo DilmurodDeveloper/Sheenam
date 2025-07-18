@@ -6,11 +6,12 @@
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
+using Sheenam.Api.Models.Foundations.Hosts.Exceptions;
 using Host = Sheenam.Api.Models.Foundations.Hosts.Host;
 
 namespace Sheenam.Api.Services.Foundations.Hosts
 {
-    public class HostService : IHostService
+    public partial class HostService : IHostService
     {
         private readonly IStorageBroker storageBroker;
         private readonly IDateTimeBroker dateTimeBroker;
@@ -26,7 +27,23 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             this.dateTimeBroker = dateTimeBroker;
         }
 
-        public async ValueTask<Host> AddHostAsync(Host host) =>
-            await this.storageBroker.InsertHostAsync(host);
+        public async ValueTask<Host> AddHostAsync(Host host)
+        {
+            try
+            {
+                ValidateHostNotNull(host);
+
+                return await this.storageBroker.InsertHostAsync(host);
+            }
+            catch (NullHostException nullHostException)
+            {
+                var hostValidationException =
+                    new HostValidationException(nullHostException);
+
+                this.loggingBroker.LogError(hostValidationException);
+
+                throw hostValidationException;
+            }
+        }
     }
 }
