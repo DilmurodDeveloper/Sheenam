@@ -53,5 +53,24 @@ namespace Sheenam.Api.Controllers
                 return InternalServerError(homeServiceException.InnerException);
             }
         }
+
+        [HttpGet("all")]
+        public ActionResult<IQueryable<Home>> GetAllHomes()
+        {
+            try
+            {
+                IQueryable<Home> allHomes = this.homeService.RetrieveAllHomes();
+
+                return Ok(allHomes);
+            }
+            catch (HomeDependencyException homeDependencyException)
+            {
+                return InternalServerError(homeDependencyException.InnerException);
+            }
+            catch (HomeServiceException homeServiceException)
+            {
+                return InternalServerError(homeServiceException.InnerException);
+            }
+        }
     }
 }
