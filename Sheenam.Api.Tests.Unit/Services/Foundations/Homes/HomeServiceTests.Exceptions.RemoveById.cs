@@ -4,6 +4,7 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using FluentAssertions;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Sheenam.Api.Models.Foundations.Homes;
@@ -54,6 +55,49 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
             this.storageBrokerMock.Verify(broker =>
                 broker.DeleteHomeAsync(It.IsAny<Home>()),
                     Times.Never);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnRemoveWhenSqlExceptionOccursAndLogItAsync()
+        {
+            // given
+            Guid someLocationId = Guid.NewGuid();
+            SqlException sqlException = GetSqlError();
+
+            var failedHomeStorageException =
+                new FailedHomeStorageException(sqlException);
+
+            var expectedHomeDependencyException =
+                new HomeDependencyException(failedHomeStorageException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectHomeByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(sqlException);
+
+            // when
+            ValueTask<Home> deleteHomeTask =
+                this.homeService.RemoveHomeByIdAsync(someLocationId);
+
+            var actualHomeDependencyException =
+                await Assert.ThrowsAsync<HomeDependencyException>(() =>
+                    deleteHomeTask.AsTask());
+
+            // then
+            actualHomeDependencyException.Should()
+                .BeEquivalentTo(expectedHomeDependencyException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectHomeByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogCritical(It.Is(SameExceptionAs(
+                    expectedHomeDependencyException))),
+                        Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
