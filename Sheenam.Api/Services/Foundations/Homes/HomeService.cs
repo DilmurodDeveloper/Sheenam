@@ -3,6 +3,7 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+using EFxceptions.Models.Exceptions;
 using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
@@ -65,6 +66,18 @@ namespace Sheenam.Api.Services.Foundations.Homes
                 this.loggingBroker.LogCritical(homeDependencyException);
 
                 throw homeDependencyException;
+            }
+            catch (DuplicateKeyException duplicateKeyException)
+            {
+                var alreadyExistHomeException =
+                    new AlreadyExistHomeException(duplicateKeyException);
+
+                var homeDependencyValidationException =
+                    new HomeDependencyValidationException(alreadyExistHomeException);
+
+                this.loggingBroker.LogError(homeDependencyValidationException);
+
+                throw homeDependencyValidationException;
             }
         }
     }
