@@ -61,7 +61,11 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
             invalidHomeException.AddData(
                 key: nameof(Home.Id),
                 values: "Id is required");
-            
+
+            invalidHomeException.AddData(
+                key: nameof(Home.HostId),
+                values: "Host Id is required");
+
             invalidHomeException.AddData(
                 key: nameof(Home.Address),
                 values: "Text is required");
@@ -72,23 +76,19 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
 
             invalidHomeException.AddData(
                 key: nameof(Home.NumberOfBedrooms),
-                values: "Value is required");
+                values: "Number of bedrooms must be greater than 0");
 
             invalidHomeException.AddData(
                 key: nameof(Home.NumberOfBathrooms),
-                values: "Value is required");
+                values: "Number of bathrooms must be greater than 0");
 
             invalidHomeException.AddData(
                 key: nameof(Home.Area),
-                values: "Value is required");
+                values: "Area (square meters) must be greater than 0");
 
             invalidHomeException.AddData(
                 key: nameof(Home.Price),
-                values: "Value is required");
-
-            invalidHomeException.AddData(
-                key: nameof(Home.HostId),
-                values: "Id is required");
+                values: "Price must be greater than 0");
 
             var expectedHomeValidationException =
                 new HomeValidationException(invalidHomeException);
