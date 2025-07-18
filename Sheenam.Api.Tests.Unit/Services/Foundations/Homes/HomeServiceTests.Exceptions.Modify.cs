@@ -158,5 +158,54 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Homes
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnModifyIfDatabaseUpdateErrorOccursAndLogItAsync()
+        {
+            // given
+            Home randomHome = CreateRandomHome();
+            Home someHome = randomHome;
+            Guid homeId = someHome.Id;
+            var serviceException = new Exception();
+
+            var failedHomeServiceException =
+                new FailedHomeServiceException(serviceException);
+
+            var expectedHomeServiceException =
+                new HomeServiceException(failedHomeServiceException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectHomeByIdAsync(homeId))
+                    .Throws(serviceException);
+
+            // when
+            ValueTask<Home> modifyHomeTask =
+                this.homeService.ModifyHomeAsync(someHome);
+
+            HomeServiceException actualHomeServiceException =
+                await Assert.ThrowsAsync<HomeServiceException>(() =>
+                    modifyHomeTask.AsTask());
+
+            // then
+            actualHomeServiceException.Should()
+                .BeEquivalentTo(expectedHomeServiceException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedHomeServiceException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectHomeByIdAsync(homeId),
+                    Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.UpdateHomeAsync(someHome),
+                    Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
