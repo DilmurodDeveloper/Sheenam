@@ -70,12 +70,23 @@ namespace Sheenam.Api.Services.Foundations.Homes
                 Home maybeHome =
                     await this.storageBroker.SelectHomeByIdAsync(homeId);
 
+                ValidateStorageHome(maybeHome, homeId);
+
                 return await this.storageBroker.DeleteHomeAsync(maybeHome);
             }
             catch (InvalidHomeException invalidHomeException)
             {
                 var homeValidationException =
                     new HomeValidationException(invalidHomeException);
+
+                this.loggingBroker.LogError(homeValidationException);
+
+                throw homeValidationException;
+            }
+            catch (NotFoundHomeException notFoundHomeException)
+            {
+                var homeValidationException =
+                    new HomeValidationException(notFoundHomeException);
 
                 this.loggingBroker.LogError(homeValidationException);
 
