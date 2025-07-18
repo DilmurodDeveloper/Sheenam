@@ -43,19 +43,16 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
                 (Rule: IsInvalid(homeRequest.UpdatedDate), Parameter: nameof(HomeRequest.UpdatedDate)));
         }
 
-        private static void ValidateAgainstStorageHomeRequestOnModify(HomeRequest homeRequest, HomeRequest maybeHomeRequest)
+        private static void ValidateAgainstStorageHomeRequestOnModify(HomeRequest inputHomeRequest, HomeRequest storageHomeRequest)
         {
-            ValidateStorageHomeRequestIsNotNull(maybeHomeRequest, homeRequest.Id);
+            ValidateStorageHomeRequestIsNotNull(storageHomeRequest, inputHomeRequest.Id);
 
             Validate(
-                (Rule: IsInvalid(homeRequest.Id, "Id"), Parameter: nameof(HomeRequest.Id)),
-                (Rule: IsInvalid(homeRequest.GuestId, "Guest Id"), Parameter: nameof(HomeRequest.GuestId)),
-                (Rule: IsInvalid(homeRequest.HomeId, "Home Id"), Parameter: nameof(HomeRequest.HomeId)),
-                (Rule: IsInvalid(homeRequest.Message), Parameter: nameof(HomeRequest.Message)),
-                (Rule: IsInvalid(homeRequest.StartDate), Parameter: nameof(HomeRequest.StartDate)),
-                (Rule: IsInvalid(homeRequest.EndDate), Parameter: nameof(HomeRequest.EndDate)),
-                (Rule: IsInvalid(homeRequest.CreatedDate), Parameter: nameof(HomeRequest.CreatedDate)),
-                (Rule: IsInvalid(homeRequest.UpdatedDate), Parameter: nameof(HomeRequest.UpdatedDate)));
+                (Rule: IsNotSame(
+                    firstGuid: inputHomeRequest.Id,
+                    secondGuid: storageHomeRequest.Id,
+                    secondFieldName: nameof(HomeRequest.Id)),
+                    Parameter: nameof(HomeRequest.Id)));
         }
 
         private static void ValidateHomeRequestIsNotNull(HomeRequest homeRequest)
@@ -93,6 +90,15 @@ namespace Sheenam.Api.Services.Foundations.HomeRequests
             Condition = date == default,
             Message = "Date is required"
         };
+
+        private static dynamic IsNotSame(
+           Guid firstGuid,
+           Guid secondGuid,
+           string secondFieldName) => new
+           {
+               Condition = firstGuid != secondGuid,
+               Message = $"Value is not the same as {secondFieldName}"
+           };
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
