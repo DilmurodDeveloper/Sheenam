@@ -10,5 +10,6 @@ namespace Sheenam.Api.Services.Foundations.Homes
     public interface IHomeService
     {
         ValueTask<Home> AddHomeAsync(Home home);
+        IQueryable<Home> RetrieveAllHomes();
     }
 }
