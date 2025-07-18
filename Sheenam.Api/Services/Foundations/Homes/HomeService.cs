@@ -59,5 +59,8 @@ namespace Sheenam.Api.Services.Foundations.Homes
 
             return await this.storageBroker.UpdateHomeAsync(home);
         });
+
+        public ValueTask<Home> RemoveHomeByIdAsync(Guid homeId) =>
+            throw new NotImplementedException();
     }
 }
