@@ -36,5 +36,8 @@ namespace Sheenam.Api.Services.Foundations.Homes
 
         IQueryable<Home> IHomeService.RetrieveAllHomes() =>
             TryCatch(() => this.storageBroker.SelectAllHomes());
+
+        public ValueTask<Home> RetrieveHomeByIdAsync(Guid homeId) =>
+            throw new NotImplementedException();
     }
 }
