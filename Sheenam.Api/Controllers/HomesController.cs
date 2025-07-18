@@ -72,5 +72,35 @@ namespace Sheenam.Api.Controllers
                 return InternalServerError(homeServiceException.InnerException);
             }
         }
+
+        [HttpGet("ById")]
+        public async ValueTask<ActionResult<Home>> GetHomeByIdAsync(Guid homeId)
+        {
+            try
+            {
+                Home maybeHome =
+                    await this.homeService.RetrieveHomeByIdAsync(homeId);
+
+                return Ok(maybeHome);
+            }
+            catch (HomeValidationException homeValidationException)
+                when (homeValidationException.InnerException is InvalidHomeException)
+            {
+                return BadRequest(homeValidationException.InnerException);
+            }
+            catch (HomeValidationException homeValidationException)
+                when (homeValidationException.InnerException is NotFoundHomeException)
+            {
+                return NotFound(homeValidationException.InnerException);
+            }
+            catch (HomeDependencyException homeDependencyException)
+            {
+                return InternalServerError(homeDependencyException.InnerException);
+            }
+            catch (HomeServiceException homeServiceException)
+            {
+                return InternalServerError(homeServiceException.InnerException);
+            }
+        }
     }
 }
