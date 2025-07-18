@@ -14,6 +14,7 @@ namespace Sheenam.Api.Services.Foundations.Homes
     public partial class HomeService
     {
         private delegate ValueTask<Home> ReturningHomeFunction();
+        private delegate IQueryable<Home> ReturningHomesFunction();
 
         private async ValueTask<Home> TryCatch(ReturningHomeFunction returningHomeFunction)
         {
@@ -42,6 +43,28 @@ namespace Sheenam.Api.Services.Foundations.Homes
                     new AlreadyExistHomeException(duplicateKeyException);
 
                 throw CreateAndLogDependencyValidationException(alreadyExistHomeException);
+            }
+            catch (Exception exception)
+            {
+                var failedHomeServiceException =
+                    new FailedHomeServiceException(exception);
+
+                throw CreateAndLogServiceException(failedHomeServiceException);
+            }
+        }
+
+        private IQueryable<Home> TryCatch(ReturningHomesFunction returningHomesFunction)
+        {
+            try
+            {
+                return returningHomesFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedHomeStorageException =
+                    new FailedHomeStorageException(sqlException);
+
+                throw CreateAndLogCriticalDependencyException(failedHomeStorageException);
             }
             catch (Exception exception)
             {
