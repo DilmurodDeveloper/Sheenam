@@ -73,12 +73,23 @@ namespace Sheenam.Api.Services.Foundations.Hosts
                 Host maybeHost =
                     await this.storageBroker.SelectHostByIdAsync(hostId);
 
+                ValidateStorageHost(maybeHost, hostId);
+
                 return await this.storageBroker.DeleteHostAsync(maybeHost);
             }
             catch (InvalidHostException invalidHostException)
             {
                 var hostValidationException =
                     new HostValidationException(invalidHostException);
+
+                this.loggingBroker.LogError(hostValidationException);
+
+                throw hostValidationException;
+            }
+            catch (NotFoundHostException notFoundHostException)
+            {
+                var hostValidationException =
+                    new HostValidationException(notFoundHostException);
 
                 this.loggingBroker.LogError(hostValidationException);
 
