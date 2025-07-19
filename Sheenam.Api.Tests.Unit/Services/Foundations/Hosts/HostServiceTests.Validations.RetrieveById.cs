@@ -5,6 +5,7 @@
 
 using FluentAssertions;
 using Moq;
+using Sheenam.Api.Models.Foundations.Homes.Exceptions;
 using Sheenam.Api.Models.Foundations.Hosts;
 using Sheenam.Api.Models.Foundations.Hosts.Exceptions;
 
@@ -49,6 +50,48 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Hosts
 
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnRetrieveByIdIfHostNotFoundAndLogItAsync()
+        {
+            // given
+            Guid someHostId = Guid.NewGuid();
+            Host noHost = null;
+
+            var notFoundHostException =
+                new NotFoundHostException(someHostId);
+
+            var expectedHostValidationException =
+                new HostValidationException(notFoundHostException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectHostByIdAsync(It.IsAny<Guid>()))
+                    .ReturnsAsync(noHost);
+
+            // when
+            ValueTask<Host> retriveByIdHostTask =
+                this.hostService.RetrieveHostByIdAsync(someHostId);
+
+            var actualHostValidationException =
+                await Assert.ThrowsAsync<HostValidationException>(
+                    retriveByIdHostTask.AsTask);
+
+            // then
+            actualHostValidationException.Should()
+                .BeEquivalentTo(expectedHostValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectHostByIdAsync(someHostId),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedHostValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
     }
