@@ -9,6 +9,7 @@ using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Services.Foundations.Guests;
 using Sheenam.Api.Services.Foundations.HomeRequests;
+using Sheenam.Api.Services.Foundations.Hosts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddTransient<ILoggingBroker, LoggingBroker>();
 builder.Services.AddTransient<IDateTimeBroker, DateTimeBroker>();
 builder.Services.AddTransient<IGuestService, GuestService>();
 builder.Services.AddTransient<IHomeRequestService, HomeRequestService>();
+builder.Services.AddTransient<IHostService, HostService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
