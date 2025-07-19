@@ -44,12 +44,26 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             {
                 ValidateHostId(hostId);
 
-                return await this.storageBroker.SelectHostByIdAsync(hostId);
+                Host maybeHost =
+                    await this.storageBroker.SelectHostByIdAsync(hostId);
+
+                ValidateStorageHost(maybeHost, hostId);
+
+                return maybeHost;
             }
             catch (InvalidHostException invalidHostException)
             {
                 var hostValidationException =
                     new HostValidationException(invalidHostException);
+
+                this.loggingBroker.LogError(hostValidationException);
+
+                throw hostValidationException;
+            }
+            catch (NotFoundHostException notFoundHostException)
+            {
+                var hostValidationException =
+                    new HostValidationException(notFoundHostException);
 
                 this.loggingBroker.LogError(hostValidationException);
 
