@@ -12,7 +12,6 @@ namespace Sheenam.Api.Models.Foundations.Homes
     public class Home
     {
         public Guid Id { get; set; }
-        [JsonIgnore]
         public Guid HostId { get; set; }
         public Host Host { get; set; }
         public string Address { get; set; }
