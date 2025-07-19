@@ -73,8 +73,8 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Hosts
                 this.hostService.RetrieveHostByIdAsync(someHostId);
 
             var actualHostValidationException =
-                await Assert.ThrowsAsync<HostValidationException>(
-                    retriveByIdHostTask.AsTask);
+                await Assert.ThrowsAsync<HostValidationException>(() =>
+                    retriveByIdHostTask.AsTask());
 
             // then
             actualHostValidationException.Should()
