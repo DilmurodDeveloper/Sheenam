@@ -49,5 +49,8 @@ namespace Sheenam.Api.Services.Foundations.Hosts
 
             return maybeHost;
         });
+
+        public ValueTask<Host> ModifyHostAsync(Host host) =>
+            throw new NotImplementedException();
     }
 }
