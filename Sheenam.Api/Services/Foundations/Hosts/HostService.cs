@@ -4,6 +4,7 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
@@ -101,6 +102,18 @@ namespace Sheenam.Api.Services.Foundations.Hosts
                     new HostDependencyException(failedHostStorageException);
 
                 this.loggingBroker.LogCritical(hostDependencyException);
+
+                throw hostDependencyException;
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedHostStorageException =
+                    new FailedHostStorageException(dbUpdateException);
+
+                var hostDependencyException =
+                    new HostDependencyException(failedHostStorageException);
+
+                this.loggingBroker.LogError(hostDependencyException);
 
                 throw hostDependencyException;
             }
