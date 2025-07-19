@@ -65,7 +65,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Hosts
         public async Task ShouldThrowDependencyExceptionOnRemoveWhenSqlExceptionOccursAndLogItAsync()
         {
             // given
-            Guid someLocationId = Guid.NewGuid();
+            Guid someHostId = Guid.NewGuid();
             SqlException sqlException = GetSqlError();
 
             var failedHostStorageException =
@@ -80,7 +80,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Hosts
 
             // when
             ValueTask<Host> deleteHostTask =
-                this.hostService.RemoveHostByIdAsync(someLocationId);
+                this.hostService.RemoveHostByIdAsync(someHostId);
 
             HostDependencyException actualHostDependencyException =
                 await Assert.ThrowsAsync<HostDependencyException>(() =>
