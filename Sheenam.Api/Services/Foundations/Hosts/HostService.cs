@@ -121,6 +121,18 @@ namespace Sheenam.Api.Services.Foundations.Hosts
 
                 throw hostDependencyException;
             }
+            catch (Exception exception)
+            {
+                var failedHostServiceException =
+                    new FailedHostServiceException(exception);
+
+                var hostServiceException =
+                    new HostServiceException(failedHostServiceException);
+
+                this.loggingBroker.LogError(hostServiceException);
+
+                throw hostServiceException;
+            }
         }
     }
 }
