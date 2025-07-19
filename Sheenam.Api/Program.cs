@@ -9,17 +9,17 @@ using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Services.Foundations.Guests;
 using Sheenam.Api.Services.Foundations.HomeRequests;
+using Sheenam.Api.Services.Foundations.Homes;
+using Sheenam.Api.Services.Foundations.Hosts;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<StorageBroker>();
-builder.Services.AddTransient<IStorageBroker, StorageBroker>();
-builder.Services.AddTransient<ILoggingBroker, LoggingBroker>();
-builder.Services.AddTransient<IDateTimeBroker, DateTimeBroker>();
-builder.Services.AddTransient<IGuestService, GuestService>();
-builder.Services.AddTransient<IHomeRequestService, HomeRequestService>();
+
+AddBrokers(builder.Services);
+AddFoundationServices(builder.Services);
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -53,3 +53,18 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
+static void AddBrokers(IServiceCollection services)
+{
+    services.AddTransient<IStorageBroker, StorageBroker>();
+    services.AddTransient<ILoggingBroker, LoggingBroker>();
+    services.AddTransient<IDateTimeBroker, DateTimeBroker>();
+}
+
+static void AddFoundationServices(IServiceCollection services)
+{
+    services.AddTransient<IGuestService, GuestService>();
+    services.AddTransient<IHomeRequestService, HomeRequestService>();
+    services.AddTransient<IHomeService, HomeService>();
+    services.AddTransient<IHostService, HostService>();
+}
