@@ -4,6 +4,7 @@
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 using FluentAssertions;
+using Force.DeepCloner;
 using Moq;
 using Sheenam.Api.Models.Foundations.Hosts;
 
@@ -17,7 +18,7 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Hosts
             // given
             IQueryable<Host> randomHost = CreateRandomHosts();
             IQueryable<Host> storageHost = randomHost;
-            IQueryable<Host> expectedHost = storageHost;
+            IQueryable<Host> expectedHost = storageHost.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectAllHosts()).Returns(storageHost);
