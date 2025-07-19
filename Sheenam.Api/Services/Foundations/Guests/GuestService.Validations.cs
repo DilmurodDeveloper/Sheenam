@@ -41,8 +41,9 @@ namespace Sheenam.Api.Services.Foundations.Guests
         private static void ValidateAgainstStorageGuestOnModify(Guest inputGuest, Guest storageGuest)
         {
             ValidateStorageGuest(storageGuest, inputGuest.Id);
+
             Validate(
-            (Rule: IsNotSame(
+                (Rule: IsNotSame(
                    firstGuid: inputGuest.Id,
                    secondGuid: storageGuest.Id,
                    secondDateName: nameof(Guest.DateOfBirth)),
