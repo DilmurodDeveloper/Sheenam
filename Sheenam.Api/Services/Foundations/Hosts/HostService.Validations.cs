@@ -38,6 +38,18 @@ namespace Sheenam.Api.Services.Foundations.Hosts
                 (Rule: IsInvalid(host.PhoneNumber), Parameter: nameof(Host.PhoneNumber)));
         }
 
+        private static void ValidateAgainstStorageHostOnModify(Host inputHost, Host storageHost)
+        {
+            ValidateStorageHost(storageHost, inputHost.Id);
+
+            Validate(
+                (Rule: IsNotSame(
+                   firstGuid: inputHost.Id,
+                   secondGuid: storageHost.Id,
+                   secondDateName: nameof(Host.DateOfBirth)),
+                   Parameter: nameof(Host.DateOfBirth)));
+        }
+
         private static void ValidateHostNotNull(Host host)
         {
             if (host is null)
@@ -80,6 +92,15 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             Condition = Enum.IsDefined(gender) is false,
             Message = "Value is invalid"
         };
+
+        private static dynamic IsNotSame(
+            Guid firstGuid,
+            Guid secondGuid,
+            string secondDateName) => new
+            {
+                Condition = firstGuid != secondGuid,
+                Message = $"Guid is not same as {secondDateName}"
+            };
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {

@@ -60,6 +60,8 @@ namespace Sheenam.Api.Services.Foundations.Hosts
                 Host maybeHost =
                     await this.storageBroker.SelectHostByIdAsync(host.Id);
 
+                ValidateAgainstStorageHostOnModify(host, maybeHost);
+
                 return await this.storageBroker.UpdateHostAsync(host);
             }
             catch (NullHostException nullHostException)
@@ -75,6 +77,15 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             {
                 var hostValidationException =
                     new HostValidationException(invalidHostException);
+
+                this.loggingBroker.LogError(hostValidationException);
+
+                throw hostValidationException;
+            }
+            catch (NotFoundHostException notFoundHostException)
+            {
+                var hostValidationException =
+                    new HostValidationException(notFoundHostException);
 
                 this.loggingBroker.LogError(hostValidationException);
 
