@@ -45,6 +45,9 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Hosts
         private static int GetRandomNumber() =>
             new IntRange(2, 9).GetValue();
 
+        private static string GetRandomString() =>
+            new MnemonicString().GetValue();
+
         private static T GetInvalidEnum<T>()
         {
             int randomNumber = GetRandomNumber();
