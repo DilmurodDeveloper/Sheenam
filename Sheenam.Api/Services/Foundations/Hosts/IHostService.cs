@@ -13,5 +13,6 @@ namespace Sheenam.Api.Services.Foundations.Hosts
         IQueryable<Host> RetrieveAllHosts();
         ValueTask<Host> RetrieveHostByIdAsync(Guid hostId);
         ValueTask<Host> ModifyHostAsync(Host host);
+        ValueTask<Host> RemoveHostByIdAsync(Guid hostId);
     }
 }
