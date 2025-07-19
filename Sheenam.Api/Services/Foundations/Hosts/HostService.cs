@@ -3,9 +3,11 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
+using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
+using Sheenam.Api.Models.Foundations.Hosts.Exceptions;
 using Host = Sheenam.Api.Models.Foundations.Hosts.Host;
 
 namespace Sheenam.Api.Services.Foundations.Hosts
@@ -34,7 +36,24 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             return await this.storageBroker.InsertHostAsync(host);
         });
 
-        public IQueryable<Host> RetrieveAllHosts() =>
-            this.storageBroker.SelectAllHosts();
+        public IQueryable<Host> RetrieveAllHosts()
+        {
+            try
+            {
+                return this.storageBroker.SelectAllHosts();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedHostStorageException =
+                    new FailedHostStorageException(sqlException);
+
+                var hostDependencyException =
+                    new HostDependencyException(failedHostStorageException);
+
+                this.loggingBroker.LogCritical(hostDependencyException);
+
+                throw hostDependencyException;
+            }
+        }
     }
 }
