@@ -3,11 +3,9 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
-using Sheenam.Api.Models.Foundations.Hosts.Exceptions;
 using Host = Sheenam.Api.Models.Foundations.Hosts.Host;
 
 namespace Sheenam.Api.Services.Foundations.Hosts
@@ -39,61 +37,17 @@ namespace Sheenam.Api.Services.Foundations.Hosts
         public IQueryable<Host> RetrieveAllHosts() =>
             TryCatch(() => this.storageBroker.SelectAllHosts());
 
-        public async ValueTask<Host> RetrieveHostByIdAsync(Guid hostId)
+        public ValueTask<Host> RetrieveHostByIdAsync(Guid hostId) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateHostId(hostId);
+            ValidateHostId(hostId);
 
-                Host maybeHost =
-                    await this.storageBroker.SelectHostByIdAsync(hostId);
+            Host maybeHost =
+                await this.storageBroker.SelectHostByIdAsync(hostId);
 
-                ValidateStorageHost(maybeHost, hostId);
+            ValidateStorageHost(maybeHost, hostId);
 
-                return maybeHost;
-            }
-            catch (InvalidHostException invalidHostException)
-            {
-                var hostValidationException =
-                    new HostValidationException(invalidHostException);
-
-                this.loggingBroker.LogError(hostValidationException);
-
-                throw hostValidationException;
-            }
-            catch (NotFoundHostException notFoundHostException)
-            {
-                var hostValidationException =
-                    new HostValidationException(notFoundHostException);
-
-                this.loggingBroker.LogError(hostValidationException);
-
-                throw hostValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedHostStorageException =
-                    new FailedHostStorageException(sqlException);
-
-                var hostDependencyException =
-                    new HostDependencyException(failedHostStorageException);
-
-                this.loggingBroker.LogCritical(hostDependencyException);
-
-                throw hostDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedHostServiceException =
-                    new FailedHostServiceException(exception);
-
-                var hostServiceException =
-                    new HostServiceException(failedHostServiceException);
-
-                this.loggingBroker.LogError(hostServiceException);
-
-                throw hostServiceException;
-            }
-        }
+            return maybeHost;
+        });
     }
 }
