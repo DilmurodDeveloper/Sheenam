@@ -72,5 +72,35 @@ namespace Sheenam.Api.Controllers
                 return InternalServerError(hostServiceException.InnerException);
             }
         }
+
+        [HttpGet("{hostId}")]
+        public async ValueTask<ActionResult<Host>> GetHostByIdAsync(Guid hostId)
+        {
+            try
+            {
+                Host maybeHost =
+                    await this.hostService.RetrieveHostByIdAsync(hostId);
+
+                return Ok(maybeHost);
+            }
+            catch (HostValidationException hostValidationException)
+                when (hostValidationException.InnerException is InvalidHostException)
+            {
+                return BadRequest(hostValidationException.InnerException);
+            }
+            catch (HostValidationException hostValidationException)
+                when (hostValidationException.InnerException is NotFoundHostException)
+            {
+                return NotFound(hostValidationException.InnerException);
+            }
+            catch (HostDependencyException hostDependencyException)
+            {
+                return InternalServerError(hostDependencyException.InnerException);
+            }
+            catch (HostServiceException hostServiceException)
+            {
+                return InternalServerError(hostServiceException.InnerException);
+            }
+        }
     }
 }
