@@ -55,5 +55,52 @@ namespace Sheenam.Api.Tests.Unit.Services.Foundations.Hosts
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowNotFoundExceptionOnRemoveHostByIdIsNotFoundAndLogItAsync()
+        {
+            // given
+            Guid inputHostId = Guid.NewGuid();
+            Host noHost = null;
+
+            var notFoundHostException =
+                new NotFoundHostException(inputHostId);
+
+            var expectedHostValidationException =
+                new HostValidationException(notFoundHostException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectHostByIdAsync(It.IsAny<Guid>()))
+                    .ReturnsAsync(noHost);
+
+            // when
+            ValueTask<Host> removeHostById =
+                this.hostService.RemoveHostByIdAsync(inputHostId);
+
+            HostValidationException actualHostValidationException =
+                await Assert.ThrowsAsync<HostValidationException>(() =>
+                    removeHostById.AsTask());
+
+            // then
+            actualHostValidationException.Should()
+                .BeEquivalentTo(expectedHostValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectHostByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExceptionAs(
+                    expectedHostValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.DeleteHostAsync(It.IsAny<Host>()),
+                    Times.Never);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
