@@ -26,6 +26,6 @@ namespace Sheenam.Api.Models.Foundations.Homes
         public decimal Price { get; set; }
         public HouseType Type { get; set; }
         [JsonIgnore]
-        public List<HomeRequest> HomeRequests { get; set; }
+        public List<HomeRequest>? HomeRequests { get; set; }
     }
 }

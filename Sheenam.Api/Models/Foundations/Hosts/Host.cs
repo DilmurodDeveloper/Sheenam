@@ -18,6 +18,6 @@ namespace Sheenam.Api.Models.Foundations.Hosts
         public string PhoneNumber { get; set; }
         public HostGenderType Gender { get; set; }
         [JsonIgnore]
-        public List<Home> Homes { get; set; }
+        public List<Home>? Homes { get; set; }
     }
 }

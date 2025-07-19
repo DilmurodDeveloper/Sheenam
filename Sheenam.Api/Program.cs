@@ -9,6 +9,7 @@ using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
 using Sheenam.Api.Services.Foundations.Guests;
 using Sheenam.Api.Services.Foundations.HomeRequests;
+using Sheenam.Api.Services.Foundations.Homes;
 using Sheenam.Api.Services.Foundations.Hosts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,5 +65,6 @@ static void AddFoundationServices(IServiceCollection services)
 {
     services.AddTransient<IGuestService, GuestService>();
     services.AddTransient<IHomeRequestService, HomeRequestService>();
+    services.AddTransient<IHomeService, HomeService>();
     services.AddTransient<IHostService, HostService>();
 }
