@@ -3,12 +3,9 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using EFxceptions.Models.Exceptions;
-using Microsoft.Data.SqlClient;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
-using Sheenam.Api.Models.Foundations.Hosts.Exceptions;
 using Host = Sheenam.Api.Models.Foundations.Hosts.Host;
 
 namespace Sheenam.Api.Services.Foundations.Hosts
@@ -29,68 +26,12 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             this.dateTimeBroker = dateTimeBroker;
         }
 
-        public async ValueTask<Host> AddHostAsync(Host host)
+        public ValueTask<Host> AddHostAsync(Host host) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateHostOnAdd(host);
+            ValidateHostOnAdd(host);
 
-                return await this.storageBroker.InsertHostAsync(host);
-            }
-            catch (NullHostException nullHostException)
-            {
-                var hostValidationException =
-                    new HostValidationException(nullHostException);
-
-                this.loggingBroker.LogError(hostValidationException);
-
-                throw hostValidationException;
-            }
-            catch (InvalidHostException invalidHostException)
-            {
-                var hostValidationException =
-                    new HostValidationException(invalidHostException);
-
-                this.loggingBroker.LogError(hostValidationException);
-
-                throw hostValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedHostStorageException =
-                    new FailedHostStorageException(sqlException);
-
-                var hostDependencyException =
-                    new HostDependencyException(failedHostStorageException);
-
-                this.loggingBroker.LogCritical(hostDependencyException);
-
-                throw hostDependencyException;
-            }
-            catch (DuplicateKeyException duplicateKeyException)
-            {
-                var alreadyExistHostException =
-                    new AlreadyExistHostException(duplicateKeyException);
-
-                var hostDependencyValidationException =
-                    new HostDependencyValidationException(alreadyExistHostException);
-
-                this.loggingBroker.LogError(hostDependencyValidationException);
-
-                throw hostDependencyValidationException;
-            }
-            catch (Exception exception)
-            {
-                var failedHostServiceException =
-                    new FailedHostServiceException(exception);
-
-                var hostServiceException =
-                    new HostServiceException(failedHostServiceException);
-
-                this.loggingBroker.LogError(hostServiceException);
-
-                throw hostServiceException;
-            }
-        }
+            return await this.storageBroker.InsertHostAsync(host);
+        });
     }
 }
