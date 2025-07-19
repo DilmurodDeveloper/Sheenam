@@ -3,12 +3,9 @@
 // Free To Use To Find Comfort and Peace    
 // = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
-using Sheenam.Api.Models.Foundations.Hosts.Exceptions;
 using Host = Sheenam.Api.Models.Foundations.Hosts.Host;
 
 namespace Sheenam.Api.Services.Foundations.Hosts
@@ -66,73 +63,17 @@ namespace Sheenam.Api.Services.Foundations.Hosts
             return await this.storageBroker.UpdateHostAsync(host);
         });
 
-        public async ValueTask<Host> RemoveHostByIdAsync(Guid hostId)
+        public ValueTask<Host> RemoveHostByIdAsync(Guid hostId) =>
+        TryCatch(async () =>
         {
-            try
-            {
-                ValidateHostId(hostId);
+            ValidateHostId(hostId);
 
-                Host maybeHost =
-                    await this.storageBroker.SelectHostByIdAsync(hostId);
+            Host maybeHost =
+                await this.storageBroker.SelectHostByIdAsync(hostId);
 
-                ValidateStorageHost(maybeHost, hostId);
+            ValidateStorageHost(maybeHost, hostId);
 
-                return await this.storageBroker.DeleteHostAsync(maybeHost);
-            }
-            catch (InvalidHostException invalidHostException)
-            {
-                var hostValidationException =
-                    new HostValidationException(invalidHostException);
-
-                this.loggingBroker.LogError(hostValidationException);
-
-                throw hostValidationException;
-            }
-            catch (NotFoundHostException notFoundHostException)
-            {
-                var hostValidationException =
-                    new HostValidationException(notFoundHostException);
-
-                this.loggingBroker.LogError(hostValidationException);
-
-                throw hostValidationException;
-            }
-            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
-            {
-                var lockedHostException =
-                    new LockedHostException(dbUpdateConcurrencyException);
-
-                var hostDependencyValidationException =
-                    new HostDependencyValidationException(lockedHostException);
-
-                this.loggingBroker.LogError(hostDependencyValidationException);
-
-                throw hostDependencyValidationException;
-            }
-            catch (SqlException sqlException)
-            {
-                var failedHostStorageException =
-                    new FailedHostStorageException(sqlException);
-
-                var hostDependencyException =
-                    new HostDependencyException(failedHostStorageException);
-
-                this.loggingBroker.LogCritical(hostDependencyException);
-
-                throw hostDependencyException;
-            }
-            catch (Exception exception)
-            {
-                var failedHostServiceException =
-                    new FailedHostServiceException(exception);
-
-                var hostServiceException =
-                    new HostServiceException(failedHostServiceException);
-
-                this.loggingBroker.LogError(hostServiceException);
-
-                throw hostServiceException;
-            }
-        }
+            return await this.storageBroker.DeleteHostAsync(maybeHost);
+        });
     }
 }
