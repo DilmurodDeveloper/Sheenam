@@ -6,6 +6,7 @@
 using Sheenam.Api.Brokers.DateTimes;
 using Sheenam.Api.Brokers.Loggings;
 using Sheenam.Api.Brokers.Storages;
+using Sheenam.Api.Models.Foundations.Hosts.Exceptions;
 using Host = Sheenam.Api.Models.Foundations.Hosts.Host;
 
 namespace Sheenam.Api.Services.Foundations.Hosts
@@ -52,10 +53,24 @@ namespace Sheenam.Api.Services.Foundations.Hosts
 
         public async ValueTask<Host> ModifyHostAsync(Host host)
         {
-            Host maybeHost =
-                await this.storageBroker.SelectHostByIdAsync(host.Id);
+            try
+            {
+                ValidateHostNotNull(host);
 
-            return await this.storageBroker.UpdateHostAsync(host);
+                Host maybeHost =
+                    await this.storageBroker.SelectHostByIdAsync(host.Id);
+
+                return await this.storageBroker.UpdateHostAsync(host);
+            }
+            catch (NullHostException nullHostException)
+            {
+                var hostValidationException =
+                    new HostValidationException(nullHostException);
+
+                this.loggingBroker.LogError(hostValidationException);
+
+                throw hostValidationException;
+            }
         }
     }
 }
